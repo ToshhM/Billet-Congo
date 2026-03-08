@@ -1,124 +1,75 @@
-import { Event, EventStatus } from '../types';
-
-// Utilisation de globalThis pour persister la mémoire entre les Server Actions
-const globalForEvents = globalThis as unknown as {
-    mockEvents: Event[];
-};
-
-if (!globalForEvents.mockEvents) {
-    globalForEvents.mockEvents = [
-        {
-            id: 'evo-001',
-            title: 'Showcase Fally Ipupa',
-            description: 'Le grand retour de l\'Aigle pour un showcase exclusif à Brazzaville. Venez vibrer au rythme de la rumba et de la tokoss music dans un cadre exceptionnel.',
-            location: 'Stade Marchand, Brazzaville',
-            startDate: '2024-03-24T18:00:00Z',
-            price: 10000,
-            currency: 'XAF',
-            capacity: 5000,
-            availableTickets: 3450,
-            status: 'PUBLISHED',
-            organizerId: 'org-001',
-            imageUrl: 'https://images.unsplash.com/photo-1540039155732-684735035727?q=80&w=2669&auto=format&fit=crop',
-        },
-        {
-            id: 'evo-002',
-            title: 'Festival Panafricain de Musique (FESPAM)',
-            description: 'La 12ème édition du FESPAM s\'annonce grandiose. Plus de 50 artistes venus de tout le continent pour célébrer la musique africaine.',
-            location: 'Esplanade du Palais des Congrès, Brazzaville',
-            startDate: '2024-07-15T15:00:00Z',
-            price: 5000,
-            currency: 'XAF',
-            capacity: 20000,
-            availableTickets: 12000,
-            status: 'PUBLISHED',
-            organizerId: 'org-002',
-            imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2670&auto=format&fit=crop',
-        },
-        {
-            id: 'evo-003',
-            title: 'Roga Roga & Extra Musica - 30 Ans',
-            description: 'Célébration des 30 ans de carrière de Roga Roga et Extra Musica. Un concert monumental pour retracer l\'histoire de la musique congolaise.',
-            location: 'Stade Éboué, Brazzaville',
-            startDate: '2024-05-10T20:00:00Z',
-            price: 15000,
-            currency: 'XAF',
-            capacity: 8000,
-            availableTickets: 150,
-            status: 'PUBLISHED',
-            organizerId: 'org-001',
-            imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2670&auto=format&fit=crop',
-        },
-    ];
-}
-
-const mockEvents = globalForEvents.mockEvents;
+import { Event } from '../types';
+import prisma from '@/lib/prisma';
 
 export const eventService = {
     async getEvents(): Promise<Event[]> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(mockEvents.filter(e => e.status === 'PUBLISHED'));
-            }, 800);
+        const events = await prisma.event.findMany({
+            where: { status: 'PUBLISHED' },
+            orderBy: { startDate: 'asc' }
         });
+        return events as unknown as Event[];
     },
 
     async getAdminEvents(): Promise<Event[]> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve([...mockEvents]);
-            }, 300);
+        const events = await prisma.event.findMany({
+            orderBy: { createdAt: 'desc' }
         });
+        return events as unknown as Event[];
     },
 
     async getEventById(id: string): Promise<Event | null> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const event = mockEvents.find((e) => e.id === id);
-                resolve(event || null);
-            }, 500);
+        const event = await prisma.event.findUnique({
+            where: { id }
         });
+        return (event as unknown as Event) || null;
     },
 
     async createEvent(eventData: Omit<Event, 'id' | 'availableTickets'>): Promise<Event> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const newEvent: Event = {
-                    ...eventData,
-                    id: `evo-${Date.now()}`,
-                    availableTickets: eventData.capacity,
-                };
-                mockEvents.push(newEvent);
-                resolve(newEvent);
-            }, 500);
+        const event = await prisma.event.create({
+            data: {
+                title: eventData.title,
+                description: eventData.description,
+                location: eventData.location,
+                startDate: eventData.startDate ? new Date(eventData.startDate) : new Date(),
+                price: eventData.price,
+                capacity: eventData.capacity,
+                availableTickets: eventData.capacity,
+                status: eventData.status,
+                imageUrl: eventData.imageUrl,
+                organizer: {
+                    connect: { id: eventData.organizerId || 'usr-admin-1' } // Fallback to admin if missing to prevent relation error in MVP
+                }
+            } as any
         });
+        return event as unknown as Event;
     },
 
     async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const index = mockEvents.findIndex(e => e.id === id);
-                if (index === -1) return resolve(null);
+        // Prepare data to only include valid fields for update
+        const dataToUpdate: any = { ...eventData };
+        if (dataToUpdate.id) delete dataToUpdate.id;
+        if (dataToUpdate.organizerId) delete dataToUpdate.organizerId;
+        if (dataToUpdate.startDate) dataToUpdate.startDate = new Date(dataToUpdate.startDate);
 
-                mockEvents[index] = { ...mockEvents[index], ...eventData };
-                resolve(mockEvents[index]);
-            }, 500);
+        const event = await prisma.event.update({
+            where: { id },
+            data: dataToUpdate
         });
+        return event as unknown as Event;
     },
 
     async deleteEvent(id: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const index = mockEvents.findIndex(e => e.id === id);
-                if (index === -1) return resolve(false);
-
-                mockEvents.splice(index, 1);
-                resolve(true);
-            }, 500);
-        });
+        try {
+            await prisma.event.delete({
+                where: { id }
+            });
+            return true;
+        } catch (e) {
+            console.error('Delete event error:', e);
+            return false;
+        }
     }
 };
 
-// Maintenons la rétrocompatibilité
 export const getEvents = eventService.getEvents;
 export const getEventById = eventService.getEventById;

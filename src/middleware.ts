@@ -6,6 +6,7 @@ const protectedRoutes = {
     '/admin': ['ADMIN'],
     '/account': ['USER', 'ADMIN'],
     '/checkout': ['USER', 'ADMIN'],
+    '/scanner': ['ADMIN', 'SCANNER'],
 };
 
 export function middleware(request: NextRequest) {
@@ -37,6 +38,9 @@ export function middleware(request: NextRequest) {
         if (sessionCookie) {
             if (sessionCookie.value.includes('usr-admin')) {
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+            }
+            if (sessionCookie.value.includes('usr-scanner')) {
+                return NextResponse.redirect(new URL('/scanner', request.url));
             }
             return NextResponse.redirect(new URL('/account', request.url));
         }

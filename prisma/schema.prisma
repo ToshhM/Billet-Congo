@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Epic 3 - Authentification et Rôles
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  phoneNumber String   @unique
+  fullName    String
+  role        String   @default("USER") // USER | ADMIN | SCANNER | ORGANIZER
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events    Event[]    // Evènements organisés (ADMIN, ORGANIZER)
+  tickets   Ticket[]   // Billets achetés (USER)
+  checkouts Checkout[] // Sessions d'achats (USER)
+}
+
+// Epic 5 - Back-office Admin (Gestion des Événements)
+model Event {
+  id               String      @id @default(uuid())
+  title            String
+  description      String
+  imageUrl         String?
+  location         String
+  startDate        DateTime
+  price            Int
+  currency         String      @default("XAF")
+  capacity         Int
+  availableTickets Int
+  status           String      @default("DRAFT") // DRAFT | PENDING_VALIDATION | PUBLISHED | CANCELLED | COMPLETED
+  organizerId      String
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  organizer User       @relation(fields: [organizerId], references: [id])
+  tickets   Ticket[]
+  checkouts Checkout[]
+}
+
+// Epic 6 - Modélisation des billets et commandes
+model Checkout {
+  id          String         @id @default(uuid())
+  eventId     String
+  userId      String
+  quantity    Int
+  totalPrice  Int
+  status      String         @default("INITIATED") // INITIATED | AWAITING_PAYMENT | COMPLETED | FAILED
+  expiresAt   DateTime
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+// Epic 6 & 8 - Billet et Validation (Scan)
+model Ticket {
+  id           String       @id @default(uuid())
+  reference    String       @unique // ex: TKT-2024-XXXX
+  eventId      String
+  userId       String
+  purchaseDate DateTime     @default(now())
+  pricePaid    Int
+  status       String       @default("PAID") // PENDING | PAID | USED | CANCELLED
+  qrCodeData   String       @unique // Payload chiffré ou unique pour le QR
+  scannedAt    DateTime?    // Utilisé pendant le scan (Epic 8)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
