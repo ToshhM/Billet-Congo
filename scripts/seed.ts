@@ -40,7 +40,7 @@ async function main() {
     for (const u of mockUsers) {
         await prisma.user.upsert({
             where: { id: u.id },
-            update: {},
+            update: u,
             create: u
         });
     }
@@ -59,7 +59,7 @@ async function main() {
             availableTickets: 3450,
             status: 'PUBLISHED',
             organizerId: 'usr-admin-1',
-            imageUrl: 'https://images.unsplash.com/photo-1540039155732-684735035727?q=80&w=2669&auto=format&fit=crop',
+            imageUrl: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2670&auto=format&fit=crop',
         },
         {
             id: 'evo-002',
@@ -94,7 +94,7 @@ async function main() {
     for (const e of mockEvents) {
         await prisma.event.upsert({
             where: { id: e.id },
-            update: {},
+            update: e,
             create: e
         });
     }
