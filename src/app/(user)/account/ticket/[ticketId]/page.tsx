@@ -89,7 +89,7 @@ export default async function TicketPage({ params }: PageProps) {
                         <div className="bg-neutral-200 px-4 py-2 rounded-lg">
                             <p className="text-sm font-mono tracking-widest font-bold text-neutral-800">{ticket.reference}</p>
                         </div>
-                        <p className="text-xs text-neutral-400 mt-4 text-center">Présentez ce QR Code à l'entrée de l'événement.</p>
+                        <p className="text-xs text-neutral-400 mt-4 text-center">Présentez ce QR Code à l&apos;entrée de l&apos;événement.</p>
                     </div>
                 </Card>
             </div>

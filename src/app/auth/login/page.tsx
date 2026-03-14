@@ -77,14 +77,14 @@ export default function LoginPage() {
                     <p className="text-center text-sm text-neutral-400 pt-4">
                         Pas encore de compte ?{' '}
                         <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
-                            S'inscrire
+                            S&apos;inscrire
                         </Link>
                     </p>
 
                     <div className="mt-8 pt-6 border-t border-white/5 text-xs text-neutral-500">
                         <p className="mb-2"><strong>Démos disponibles :</strong></p>
                         <p>Admin: phone <code>061234567</code>, pin <code>1234</code></p>
-                        <p>User: n'importe quel numéro et un pin à 4 chiffres créera un compte (Mock)</p>
+                        <p>User: n&apos;importe quel numéro et un pin à 4 chiffres créera un compte (Mock)</p>
                     </div>
                 </form>
             </Card>

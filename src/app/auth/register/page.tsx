@@ -14,7 +14,7 @@ export default function RegisterPage() {
 
                 <form action="/login" className="space-y-5">
                     <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-200/80 p-4 rounded-xl mb-6 text-sm">
-                        En mode MVP, utilisez simplement la page de connexion : saisir n'importe quel numéro non connu avec un PIN de 4 chiffres créera automatiquement un compte.
+                        En mode MVP, utilisez simplement la page de connexion : saisir n&apos;importe quel numéro non connu avec un PIN de 4 chiffres créera automatiquement un compte.
                     </div>
 
                     <Link href="/login" className="block">

@@ -89,7 +89,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold mb-4">À propos de l'événement</h2>
+                                <h2 className="text-2xl font-bold mb-4">À propos de l&apos;événement</h2>
                                 <div className="prose prose-invert max-w-none">
                                     <p className="text-neutral-300 leading-relaxed text-lg text-balance">
                                         {event.description}

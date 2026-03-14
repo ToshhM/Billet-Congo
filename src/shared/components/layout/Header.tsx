@@ -36,7 +36,7 @@ export const Header = async () => {
                 Se connecter
               </Link>
               <Link href="/register" className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-neutral-200 transition-colors">
-                S'inscrire
+                S&apos;inscrire
               </Link>
             </>
           )}

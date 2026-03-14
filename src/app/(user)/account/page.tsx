@@ -39,7 +39,7 @@ export default async function AccountPage() {
                             </div>
                             <h3 className="text-xl font-bold mb-2">Aucun billet pour le moment</h3>
                             <p className="text-neutral-400 mb-6 max-w-sm mx-auto">
-                                Vous n'avez pas encore acheté de billet. Parcourez les événements à venir et réservez votre place.
+                                Vous n&apos;avez pas encore acheté de billet. Parcourez les événements à venir et réservez votre place.
                             </p>
                             <Link href="/">
                                 <Button>Découvrir les événements</Button>

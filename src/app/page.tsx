@@ -9,7 +9,7 @@ export default async function Home() {
     <div className="container mx-auto px-4 py-20">
       <section className="text-center max-w-3xl mx-auto mb-24 fade-in">
         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
-          Vivez l'instant.
+          Vivez l&apos;instant.
         </h1>
         <p className="text-lg md:text-xl text-neutral-400 mb-10 text-balance">
           Découvrez les meilleurs événements au Congo Brazzaville. Réservez vos places en un instant et payez facilement via MTN et Airtel Money.
@@ -22,7 +22,7 @@ export default async function Home() {
 
       <section>
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold">À l'affiche</h2>
+          <h2 className="text-2xl font-bold">À l&apos;affiche</h2>
           <Button variant="ghost">Voir tout →</Button>
         </div>
 

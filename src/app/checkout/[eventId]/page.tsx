@@ -74,7 +74,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
                     <Card className="p-8 shadow-2xl">
                         <h2 className="text-xl font-bold mb-6">Paiement Mobile Money</h2>
                         <p className="text-sm text-neutral-400 mb-8">
-                            Sélectionnez votre opérateur et entrez votre numéro. Vous recevrez un prompt USSD sur votre téléphone pour valider l'achat.
+                            Sélectionnez votre opérateur et entrez votre numéro. Vous recevrez un prompt USSD sur votre téléphone pour valider l&apos;achat.
                         </p>
 
                         <form action={processMobileMoneyPaymentAction} className="space-y-6">

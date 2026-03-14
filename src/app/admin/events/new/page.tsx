@@ -18,7 +18,7 @@ export default function NewEventPage() {
                 <form action={createOrUpdateEventAction} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium mb-2 text-neutral-300">Titre de l'événement</label>
+                            <label className="block text-sm font-medium mb-2 text-neutral-300">Titre de l&apos;événement</label>
                             <input type="text" name="title" required className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: Concert de fin d'année" />
                         </div>
 
@@ -48,7 +48,7 @@ export default function NewEventPage() {
                         </div>
 
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium mb-2 text-neutral-300">URL de l'image (Affiche)</label>
+                            <label className="block text-sm font-medium mb-2 text-neutral-300">URL de l&apos;image (Affiche)</label>
                             <input type="url" name="imageUrl" className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..." />
                         </div>
 
@@ -65,7 +65,7 @@ export default function NewEventPage() {
                         <Link href="/admin/events">
                             <Button type="button" variant="ghost">Annuler</Button>
                         </Link>
-                        <Button type="submit">Créer l'événement</Button>
+                        <Button type="submit">Créer l&apos;événement</Button>
                     </div>
                 </form>
             </Card>
