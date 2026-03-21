@@ -1,8 +1,16 @@
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
+import { getCurrentUser } from '@/features/auth/server/auth.actions';
+import { redirect } from 'next/navigation';
+import { eventService } from '@/features/events/services/event.service';
 
 export default async function AdminDashboardPage() {
+    const user = await getCurrentUser();
+    if (!user || !['ADMIN', 'PROMOTER'].includes(user.role)) redirect('/login');
+
+    const stats = await eventService.getDashboardStats(user.id, user.role);
+
     return (
         <div className="p-8 md:p-12">
             <div className="flex justify-between items-center mb-10">
@@ -18,19 +26,19 @@ export default async function AdminDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <Card className="p-6 flex flex-col justify-between">
                     <h3 className="text-sm font-bold text-neutral-400 mb-2">Chiffre d&apos;Affaires</h3>
-                    <div className="text-3xl font-bold text-white mb-1">0 XAF</div>
+                    <div className="text-3xl font-bold text-white mb-1">{new Intl.NumberFormat('fr-FR').format(stats.totalRevenue)} XAF</div>
                     <p className="text-xs text-emerald-400">Total des ventes validées</p>
                 </Card>
 
                 <Card className="p-6 flex flex-col justify-between">
                     <h3 className="text-sm font-bold text-neutral-400 mb-2">Billets Vendus</h3>
-                    <div className="text-3xl font-bold text-white mb-1">0</div>
+                    <div className="text-3xl font-bold text-white mb-1">{stats.ticketsSold}</div>
                     <p className="text-xs text-indigo-400">Sur l&apos;ensemble des événements</p>
                 </Card>
 
                 <Card className="p-6 flex flex-col justify-between">
                     <h3 className="text-sm font-bold text-neutral-400 mb-2">Événements Actifs</h3>
-                    <div className="text-3xl font-bold text-white mb-1">3</div>
+                    <div className="text-3xl font-bold text-white mb-1">{stats.activeEventsCount}</div>
                     <p className="text-xs text-purple-400">Publiés dans le catalogue</p>
                 </Card>
             </div>

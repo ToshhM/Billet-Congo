@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function submitScanAction(reference: string) {
     const user = await getCurrentUser();
-    if (!user || !['ADMIN', 'SCANNER'].includes(user.role)) {
+    if (!user || !['ADMIN', 'SCANNER', 'PROMOTER'].includes(user.role)) {
         throw new Error('Non autorisé');
     }
 
@@ -14,7 +14,7 @@ export async function submitScanAction(reference: string) {
         return { success: false, message: 'Référence vide.' };
     }
 
-    const result = await scannerService.validateTicket(reference.trim());
+    const result = await scannerService.validateTicket(reference.trim(), user.id);
     revalidatePath('/scanner');
     return result;
 }

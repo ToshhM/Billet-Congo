@@ -8,7 +8,7 @@ export type ScanResult = {
 };
 
 export const scannerService = {
-    async validateTicket(referenceOrQrCode: string): Promise<ScanResult> {
+    async validateTicket(referenceOrQrCode: string, scannerId: string): Promise<ScanResult> {
         return new Promise(async (resolve) => {
             setTimeout(async () => {
                 try {
@@ -26,16 +26,12 @@ export const scannerService = {
                         return resolve({ success: false, message: 'Billet introuvable ou faux billet.' });
                     }
 
-                    if (ticket.status === 'USED') {
-                        return resolve({ success: false, message: 'Ce billet a déjà été scanné et utilisé.', ticket: ticket as unknown as Ticket });
-                    }
-
-                    if (ticket.status === 'CANCELLED') {
-                        return resolve({ success: false, message: 'Ce billet a été annulé.', ticket: ticket as unknown as Ticket });
-                    }
-
-                    if (ticket.status !== 'PAID') {
-                        return resolve({ success: false, message: `Billet invalide (Statut: ${ticket.status})`, ticket: ticket as unknown as Ticket });
+                    if (ticket.status !== 'VALID') {
+                        const msg = ticket.status === 'USED' ? 'Ce billet a déjà été scanné et utilisé.' : 'Ce billet a été annulé.';
+                        await prisma.scanLog.create({
+                            data: { ticketId: ticket.id, scannerId, status: 'FAILED', message: msg }
+                        });
+                        return resolve({ success: false, message: msg, ticket: ticket as unknown as Ticket });
                     }
 
                     // Marquer comme utilisé
@@ -45,6 +41,10 @@ export const scannerService = {
                             status: 'USED',
                             scannedAt: new Date()
                         }
+                    });
+
+                    await prisma.scanLog.create({
+                        data: { ticketId: ticket.id, scannerId, status: 'SUCCESS', message: 'Billet valide. Accès autorisé.' }
                     });
 
                     return resolve({

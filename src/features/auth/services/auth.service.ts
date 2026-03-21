@@ -17,7 +17,7 @@ export const authService = {
                     email: `user${Date.now()}@example.com`,
                     phoneNumber,
                     fullName: `User ${phoneNumber}`,
-                    role: 'USER',
+                    role: 'CLIENT',
                 }
             });
         }

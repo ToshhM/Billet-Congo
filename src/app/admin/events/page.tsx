@@ -8,9 +8,9 @@ import Link from 'next/link';
 
 export default async function AdminEventsPage() {
     const user = await getCurrentUser();
-    if (!user || user.role !== 'ADMIN') redirect('/login');
+    if (!user || !['ADMIN', 'PROMOTER'].includes(user.role)) redirect('/login');
 
-    const events = await eventService.getAdminEvents();
+    const events = await eventService.getAdminEvents(user.id, user.role);
 
     return (
         <div className="p-8 md:p-12">

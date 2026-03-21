@@ -7,15 +7,17 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  phoneNumber String   @unique
+  id          String    @id @default(cuid())
+  email       String    @unique
+  phoneNumber String    @unique
   fullName    String
-  role        String   @default("USER")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  events      Event[]  @relation("EventOrganizer")
+  role        String    @default("CLIENT") // CLIENT, PROMOTER, SCANNER, ADMIN
   tickets     Ticket[]
+  events      Event[]   @relation("EventOrganizer")
+  orders      Order[]
+  scanLogs    ScanLog[] @relation("ScannerLogs")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Event {
@@ -31,39 +33,72 @@ model Event {
   availableTickets Int
   status           String   @default("PUBLISHED")
   organizerId      String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
   organizer        User     @relation("EventOrganizer", fields: [organizerId], references: [id])
   tickets          Ticket[]
+  orders           Order[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Order {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  quantity    Int
+  totalPrice  Float
+  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  payment     Payment?
+  tickets     Ticket[]
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("Checkout")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  order         Order    @relation(fields: [orderId], references: [id])
+  paymentMethod String   
+  transactionId String?  @unique
+  amount        Float
+  status        String   @default("PENDING") 
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Ticket {
   id           String    @id @default(cuid())
   userId       String
+  user         User      @relation(fields: [userId], references: [id])
   eventId      String
-  reference    String?
+  event        Event     @relation(fields: [eventId], references: [id])
+  orderId      String?
+  order        Order?    @relation(fields: [orderId], references: [id])
+  reference    String?   @unique
   pricePaid    Float?
-  qrCodeData   String?
-  status       String    @default("VALID")
+  qrCodeData   String?   @unique
+  status       String    @default("VALID") // VALID, USED, CANCELLED
   purchaseDate DateTime  @default(now())
   scannedAt    DateTime?
+  scanLogs     ScanLog[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  event        Event     @relation(fields: [eventId], references: [id])
-  user         User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([eventId])
 }
 
-model Checkout {
-  id         String   @id @default(cuid())
-  eventId    String
-  userId     String
-  quantity   Int
-  totalPrice Float
-  status     String   @default("AWAITING_PAYMENT")
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model ScanLog {
+  id          String   @id @default(cuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id])
+  scannerId   String
+  scanner     User     @relation("ScannerLogs", fields: [scannerId], references: [id])
+  status      String   // SUCCESS, FAILED
+  message     String?  
+  scannedAt   DateTime @default(now())
 }
