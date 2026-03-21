@@ -12,10 +12,10 @@ model User {
   phoneNumber String   @unique
   fullName    String
   role        String   @default("USER")
-  tickets     Ticket[]
-  events      Event[]  @relation("EventOrganizer")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  events      Event[]  @relation("EventOrganizer")
+  tickets     Ticket[]
 }
 
 model Event {
@@ -31,18 +31,16 @@ model Event {
   availableTickets Int
   status           String   @default("PUBLISHED")
   organizerId      String
-  organizer        User     @relation("EventOrganizer", fields: [organizerId], references: [id])
-  tickets          Ticket[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  organizer        User     @relation("EventOrganizer", fields: [organizerId], references: [id])
+  tickets          Ticket[]
 }
 
 model Ticket {
   id           String    @id @default(cuid())
   userId       String
-  user         User      @relation(fields: [userId], references: [id])
   eventId      String
-  event        Event     @relation(fields: [eventId], references: [id])
   reference    String?
   pricePaid    Float?
   qrCodeData   String?
@@ -51,19 +49,21 @@ model Ticket {
   scannedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  event        Event     @relation(fields: [eventId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([eventId])
 }
 
 model Checkout {
-  id          String   @id @default(cuid())
-  eventId     String
-  userId      String
-  quantity    Int
-  totalPrice  Float
-  status      String   @default("AWAITING_PAYMENT")
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  eventId    String
+  userId     String
+  quantity   Int
+  totalPrice Float
+  status     String   @default("AWAITING_PAYMENT")
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

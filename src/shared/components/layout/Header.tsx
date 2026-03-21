@@ -7,24 +7,28 @@ export const Header = async () => {
   const user = await getCurrentUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/40 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/80 backdrop-blur-xl">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+        {/* Logo */}
+        <div className="flex items-center">
           <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent tracking-tight">
             CongoTickets
           </Link>
-          <nav className="hidden md:flex gap-8">
-            <Link href="/" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
-              Événements
-            </Link>
-            <Link href="/about" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
-              À propos
-            </Link>
-          </nav>
         </div>
 
+        {/* Centered Navigation for Desktop */}
+        <nav className="hidden md:flex items-center justify-center gap-8 absolute left-1/2 -translate-x-1/2">
+          <Link href="/" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+            Événements
+          </Link>
+          <Link href="/about" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+            À propos
+          </Link>
+        </nav>
+
+        {/* Actions (Desktop Auth + Mobile Menu) */}
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             {user ? (
               <Link
                 href={user.role === 'ADMIN' ? "/admin/dashboard" : "/account"}
@@ -46,7 +50,7 @@ export const Header = async () => {
               </>
             )}
           </div>
-          <MobileMenu />
+          <MobileMenu user={user} />
         </div>
       </div>
     </header>
