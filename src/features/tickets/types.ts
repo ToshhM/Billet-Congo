@@ -17,6 +17,6 @@ export interface CheckoutSession {
     userId: string;
     quantity: number;
     totalPrice: number;
-    status: 'INITIATED' | 'AWAITING_PAYMENT' | 'COMPLETED' | 'FAILED';
+    status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
     expiresAt: string;
 }

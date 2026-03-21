@@ -37,7 +37,7 @@ export default function ScannerPage() {
     return (
         <div className="flex flex-col gap-8">
             <div className="text-center">
-                <h1 className="text-3xl font-bold mb-2">Contrôle d'accès</h1>
+                <h1 className="text-3xl font-bold mb-2">Contrôle d&apos;accès</h1>
                 <p className="text-neutral-400">Scannez un QR Code ou tapez la référence du ticket.</p>
             </div>
 
