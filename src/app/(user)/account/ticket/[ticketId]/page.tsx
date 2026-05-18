@@ -2,7 +2,6 @@ import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import { paymentService } from '@/features/checkout/services/payment.service';
 import { getEventById } from '@/features/events/services/event.service';
 import { redirect, notFound } from 'next/navigation';
-import { Card } from '@/shared/components/ui/Card';
 import { DownloadTicketButton } from '@/shared/components/ui/DownloadTicketButton';
 import Link from 'next/link';
 // Composant de génération de QR Code

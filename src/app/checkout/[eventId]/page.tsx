@@ -1,7 +1,7 @@
 import { getEventById } from '@/features/events/services/event.service';
 import { paymentService } from '@/features/checkout/services/payment.service';
 import { getCurrentUser } from '@/features/auth/server/auth.actions';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
 import { processMobileMoneyPaymentAction, processGuestPaymentAction } from '@/features/checkout/server/checkout.actions';

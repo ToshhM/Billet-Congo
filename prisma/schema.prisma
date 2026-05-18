@@ -21,12 +21,32 @@ model User {
   updatedAt   DateTime  @updatedAt
 }
 
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Event {
   id                  String    @id @default(cuid())
   title               String
   description         String?
   imageUrl            String?
   location            String
+  cityId              String?
+  city                City?     @relation(fields: [cityId], references: [id])
+  categoryId          String?
+  category            Category? @relation(fields: [categoryId], references: [id])
   startDate           DateTime
   endDate             DateTime?
   price               Float

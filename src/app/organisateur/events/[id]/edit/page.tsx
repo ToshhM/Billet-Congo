@@ -4,6 +4,8 @@ import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { eventService } from '@/features/events/services/event.service';
+import { getCities } from '@/features/events/services/city.service';
+import { getCategories } from '@/features/events/services/category.service';
 import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import { notFound, redirect } from 'next/navigation';
 
@@ -16,7 +18,12 @@ export default async function OrganisateurEditEventPage({ params }: { params: { 
         redirect('/auth/login?error=not_authorized');
     }
 
-    const event = await eventService.getEventById(id);
+    const [event, cities, categories] = await Promise.all([
+        eventService.getEventById(id),
+        getCities(),
+        getCategories(),
+    ]);
+    
     if (!event) notFound();
 
     // Vérifier que l'organisateur est bien le propriétaire
@@ -54,7 +61,27 @@ export default async function OrganisateurEditEventPage({ params }: { params: { 
                         </div>
 
                         <div>
-                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Lieu / Ville</label>
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Catégorie</label>
+                            <select name="categoryId" defaultValue={event.categoryId || ''} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une catégorie</option>
+                                {categories.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Ville</label>
+                            <select name="cityId" defaultValue={event.cityId || ''} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une ville</option>
+                                {cities.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Lieu / Adresse exacte</label>
                             <input type="text" name="location" defaultValue={event.location} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm transition-all" />
                         </div>
 

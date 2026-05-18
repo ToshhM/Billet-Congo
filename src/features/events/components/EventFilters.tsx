@@ -10,7 +10,13 @@ const SORT_OPTIONS = [
     { label: 'Prix décroissant', value: 'price-desc' },
 ];
 
-export function EventFilters({ total }: { total: number }) {
+interface EventFiltersProps {
+    total: number;
+    cities?: { id: string; name: string }[];
+    categories?: { id: string; name: string }[];
+}
+
+export function EventFilters({ total, cities = [], categories = [] }: EventFiltersProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -20,6 +26,8 @@ export function EventFilters({ total }: { total: number }) {
     const sort = searchParams.get('sort') ?? 'date-asc';
     const vip = searchParams.get('vip') === '1';
     const available = searchParams.get('available') === '1';
+    const city = searchParams.get('city') ?? '';
+    const category = searchParams.get('category') ?? '';
 
     const updateParams = useCallback(
         (updates: Record<string, string | null>) => {
@@ -38,7 +46,7 @@ export function EventFilters({ total }: { total: number }) {
         [router, pathname, searchParams]
     );
 
-    const hasFilters = q || vip || available || sort !== 'date-asc';
+    const hasFilters = q || vip || available || sort !== 'date-asc' || city || category;
 
     return (
         <div className={`transition-opacity duration-200 ${isPending ? 'opacity-60' : 'opacity-100'}`}>
@@ -54,7 +62,7 @@ export function EventFilters({ total }: { total: number }) {
                     type="search"
                     value={q}
                     onChange={(e) => updateParams({ q: e.target.value || null })}
-                    placeholder="Rechercher un événement, une ville..."
+                    placeholder="Rechercher un événement..."
                     className="w-full bg-white border border-neutral-300 focus:border-primary-500 rounded-2xl pl-12 pr-4 py-4 text-neutral-900 placeholder:text-neutral-500 outline-none transition-colors text-base shadow-sm"
                 />
                 {isPending && (
@@ -64,6 +72,30 @@ export function EventFilters({ total }: { total: number }) {
 
             {/* Filtres + Tri */}
             <div className="flex flex-wrap items-center gap-3">
+                {/* Catégorie */}
+                <select
+                    value={category}
+                    onChange={(e) => updateParams({ category: e.target.value || null })}
+                    className="bg-white border border-neutral-300 hover:border-neutral-400 text-sm text-neutral-700 rounded-xl px-4 py-2.5 outline-none cursor-pointer transition-colors shadow-sm"
+                >
+                    <option value="">Toutes les catégories</option>
+                    {categories.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
+
+                {/* Ville */}
+                <select
+                    value={city}
+                    onChange={(e) => updateParams({ city: e.target.value || null })}
+                    className="bg-white border border-neutral-300 hover:border-neutral-400 text-sm text-neutral-700 rounded-xl px-4 py-2.5 outline-none cursor-pointer transition-colors shadow-sm"
+                >
+                    <option value="">Toutes les villes</option>
+                    {cities.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
+
                 {/* Tri */}
                 <select
                     value={sort}

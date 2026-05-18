@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
         try {
             const { payload } = await jose.jwtVerify(sessionCookie.value, JWT_SECRET);
             userPayload = payload;
-        } catch (error) {
+        } catch {
             // Token invalide -> possiblement un vieux cookie de démo
             // On laisse l'utilisateur passer si ce n'est pas une route protégée, 
             // sinon on le redirigera plus bas car userPayload sera null.

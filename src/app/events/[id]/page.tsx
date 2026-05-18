@@ -1,6 +1,5 @@
 import { getEventById } from '@/features/events/services/event.service';
 import { notFound } from 'next/navigation';
-import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { TicketSelector } from '@/features/checkout/components/TicketSelector';

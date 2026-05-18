@@ -33,17 +33,17 @@ export default function AboutPage() {
             <div className="space-y-4">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">Notre Mission</h2>
               <p className="text-neutral-400 leading-relaxed">
-                Démocratiser l'accès à la culture et au divertissement en offrant une solution de billetterie simple, sécurisée et transparente pour tous les événements, des concerts intimes aux grands festivals.
+                {"Démocratiser l'accès à la culture et au divertissement en offrant une solution de billetterie simple, sécurisée et transparente pour tous les événements, des concerts intimes aux grands festivals."}
               </p>
               <p className="text-neutral-400 leading-relaxed">
-                Nous fournissons aux organisateurs des outils puissants pour gérer leurs événements, tout en garantissant aux participants une expérience d'achat fluide et sans friction.
+                {"Nous fournissons aux organisateurs des outils puissants pour gérer leurs événements, tout en garantissant aux participants une expérience d'achat fluide et sans friction."}
               </p>
             </div>
 
             <div className="space-y-4">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">Notre Vision</h2>
               <p className="text-neutral-400 leading-relaxed">
-                Devenir l'écosystème central du divertissement en Afrique centrale, en innovant constamment pour repousser les limites de l'expérience événementielle numérique.
+                {"Devenir l'écosystème central du divertissement en Afrique centrale, en innovant constamment pour repousser les limites de l'expérience événementielle numérique."}
               </p>
             </div>
 
@@ -67,7 +67,7 @@ export default function AboutPage() {
                 </svg>
               </div>
               <div className="relative z-10 space-y-4">
-                <h3 className="text-3xl font-heading font-bold text-white">L'Excellence</h3>
+                <h3 className="text-3xl font-heading font-bold text-white">{"L'Excellence"}</h3>
                 <p className="text-neutral-400 text-base leading-relaxed">
                   Nous nous engageons à fournir le meilleur service possible, avec une plateforme robuste et un support client réactif pour chaque événement.
                 </p>

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { authService } from '../services/auth.service';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { User, UserRole } from '../types';
 
 export async function registerAction(formData: FormData) {
     const email = formData.get('email') as string;
@@ -18,8 +19,9 @@ export async function registerAction(formData: FormData) {
     try {
         await authService.register(email, phone, password, fullName);
         return { success: true };
-    } catch (error: any) {
-        if (error.code === 'P2002') {
+    } catch (error) {
+        const err = error as { code?: string };
+        if (err.code === 'P2002') {
             return { error: 'Cet email ou numéro de téléphone est déjà utilisé.' };
         }
         return { error: 'Une erreur est survenue lors de l\'inscription.' };
@@ -36,7 +38,7 @@ export async function adminCreateUserAction(formData: FormData) {
     const phone = formData.get('phone') as string;
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
-    const role = formData.get('role') as any;
+    const role = formData.get('role') as UserRole;
 
     if (!email || !phone || !password || !fullName || !role) {
         return { error: 'Tous les champs sont requis.' };
@@ -46,8 +48,9 @@ export async function adminCreateUserAction(formData: FormData) {
         await authService.register(email, phone, password, fullName, role);
         revalidatePath('/admin/users');
         return { success: true };
-    } catch (error: any) {
-        if (error.code === 'P2002') {
+    } catch (error) {
+        const err = error as { code?: string };
+        if (err.code === 'P2002') {
             return { error: 'Cet email ou numéro de téléphone est déjà utilisé.' };
         }
         return { error: 'Une erreur est survenue.' };
@@ -64,7 +67,7 @@ export async function adminUpdateUserAction(formData: FormData) {
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
     const fullName = formData.get('fullName') as string;
-    const role = formData.get('role') as any;
+    const role = formData.get('role') as UserRole;
     const password = formData.get('password') as string;
 
     if (!id || !email || !phone || !fullName || !role) {
@@ -72,14 +75,14 @@ export async function adminUpdateUserAction(formData: FormData) {
     }
 
     try {
-        const data: any = { email, phoneNumber: phone, fullName, role };
+        const data: Partial<User> & { password?: string } = { email, phoneNumber: phone, fullName, role };
         if (password && password.trim() !== '') {
             data.password = password;
         }
         await authService.updateUser(id, data);
         revalidatePath('/admin/users');
         return { success: true };
-    } catch (error: any) {
+    } catch {
         return { error: 'Une erreur est survenue lors de la mise à jour.' };
     }
 }
@@ -101,7 +104,7 @@ export async function adminDeleteUserAction(formData: FormData) {
         await authService.deleteUser(id);
         revalidatePath('/admin/users');
         return { success: true };
-    } catch (error: any) {
+    } catch {
         return { error: 'Une erreur est survenue lors de la suppression.' };
     }
 }
@@ -120,14 +123,14 @@ export async function updateAccountAction(formData: FormData) {
     }
 
     try {
-        const data: any = { email, phoneNumber: phone, fullName };
+        const data: Partial<User> & { password?: string } = { email, phoneNumber: phone, fullName };
         if (password && password.trim() !== '') {
             data.password = password;
         }
         await authService.updateUser(user.id, data);
         revalidatePath('/account');
         return { success: true };
-    } catch (error: any) {
+    } catch {
         return { error: 'Une erreur est survenue lors de la mise à jour.' };
     }
 }

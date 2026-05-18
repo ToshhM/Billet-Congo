@@ -11,6 +11,22 @@ export type ScanResult = {
     };
 };
 
+type PrismaTicketResult = {
+    id: string;
+    reference: string | null;
+    eventId: string;
+    userId: string;
+    purchaseDate: Date;
+    pricePaid: number | null;
+    status: string;
+    qrCodeData: string | null;
+    type: string;
+    downloadCount: number;
+    scannedAt: Date | null;
+    event: { title: string } | null;
+    user: { fullName: string } | null;
+};
+
 export const scannerService = {
     async validateTicket(referenceOrQrCode: string, scannerId: string): Promise<ScanResult> {
         return new Promise(async (resolve) => {
@@ -28,14 +44,23 @@ export const scannerService = {
                             event: { select: { title: true } },
                             user: { select: { fullName: true } },
                         }
-                    }) as any;
+                    }) as unknown as PrismaTicketResult | null;
 
                     if (!ticket) {
                         return resolve({ success: false, message: 'Billet introuvable ou faux billet.' });
                     }
 
-                    const enriched = {
-                        ...(ticket as any),
+                    const enriched: Ticket & { eventTitle: string; holderName: string; ticketType: string } = {
+                        id: ticket.id,
+                        reference: ticket.reference ?? '',
+                        eventId: ticket.eventId,
+                        userId: ticket.userId,
+                        purchaseDate: ticket.purchaseDate.toISOString(),
+                        pricePaid: ticket.pricePaid ?? 0,
+                        status: (ticket.status === 'VALID' ? 'PAID' : ticket.status) as unknown as import('@/features/tickets/types').TicketStatus,
+                        qrCodeData: ticket.qrCodeData ?? '',
+                        type: (ticket.type === 'VIP' ? 'VIP' : 'STANDARD') as 'STANDARD' | 'VIP',
+                        downloadCount: ticket.downloadCount,
                         eventTitle: ticket.event?.title ?? 'Événement inconnu',
                         holderName: ticket.user?.fullName ?? 'Porteur inconnu',
                         ticketType: ticket.type ?? 'STANDARD',
@@ -64,7 +89,7 @@ export const scannerService = {
                     return resolve({
                         success: true,
                         message: 'Billet valide. Accès autorisé.',
-                        ticket: { ...enriched, status: 'USED' } as any
+                        ticket: { ...enriched, status: 'USED' }
                     });
 
                 } catch (e) {

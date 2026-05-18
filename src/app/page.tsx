@@ -3,6 +3,7 @@ import { EventCard } from '@/features/events/components/EventCard';
 import { Button } from '@/shared/components/ui/Button';
 import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function Home() {
   const events = await getEvents();
@@ -18,10 +19,12 @@ export default async function Home() {
         <div className="relative w-full h-[60vh] min-h-[500px] rounded-[3rem] overflow-hidden group shadow-[0_0_50px_-12px_rgba(109,59,255,0.2)] border border-white/5">
           {/* Temporary Placeholder Image for Slider */}
           <div className="absolute inset-0 bg-neutral-900">
-            <img 
+            <Image 
               src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=3000&auto=format&fit=crop" 
               alt="Concert" 
-              className="w-full h-full object-cover opacity-50 mix-blend-screen transition-transform duration-1000 group-hover:scale-105"
+              fill
+              priority
+              className="object-cover opacity-50 mix-blend-screen transition-transform duration-1000 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-[#050811]/60 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#050811]/80 to-transparent" />

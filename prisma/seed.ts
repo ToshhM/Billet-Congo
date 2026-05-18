@@ -6,7 +6,7 @@ async function main() {
     console.log('🌱 Début du remplissage de la base de données...');
 
     // 1. Création du compte ADMIN
-    const adminUser = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: { phoneNumber: '060000000' },
         update: {},
         create: {
@@ -30,7 +30,7 @@ async function main() {
     });
 
     // 3. Création du compte SCANNER
-    const scannerUser = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: { phoneNumber: '062222222' },
         update: {},
         create: {
@@ -42,7 +42,7 @@ async function main() {
     });
 
     // 4. Création du compte CLIENT (pour faire des tests de connexion standard)
-    const clientUser = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: { phoneNumber: '063333333' },
         update: {},
         create: {
@@ -54,7 +54,7 @@ async function main() {
     });
 
     // 5. Création des Événements de Test (appartenant au PROMOTER)
-    const event1 = await prisma.event.create({
+    await prisma.event.create({
         data: {
             title: 'Festival Poto-Poto Rumba',
             description: 'Le plus grand festival de Rumba Congolaise de l\'année au cœur de Brazzaville.',
@@ -68,7 +68,7 @@ async function main() {
         }
     });
 
-    const event2 = await prisma.event.create({
+    await prisma.event.create({
         data: {
             title: 'Congo Tech Summit 2026',
             description: 'Rencontre avec les plus grands esprits de la tech en Afrique Centrale.',

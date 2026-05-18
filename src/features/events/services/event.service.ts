@@ -1,10 +1,11 @@
 import { Event } from '../types';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export const eventService = {
-    async getEvents(params?: { q?: string; sort?: string; vip?: string; available?: string }): Promise<Event[]> {
+    async getEvents(params?: { q?: string; sort?: string; vip?: string; available?: string; city?: string; category?: string; }): Promise<Event[]> {
         try {
-            const where: any = { status: 'PUBLISHED' };
+            const where: Prisma.EventWhereInput = { status: 'PUBLISHED' };
 
             if (params?.q) {
                 const query = params.q;
@@ -24,7 +25,15 @@ export const eventService = {
                 where.availableVipTickets = { gt: 0 };
             }
 
-            let orderBy: any = { startDate: 'asc' }; // Défaut : date la plus proche
+            if (params?.city) {
+                where.cityId = params.city;
+            }
+
+            if (params?.category) {
+                where.categoryId = params.category;
+            }
+
+            let orderBy: Prisma.EventOrderByWithRelationInput = { startDate: 'asc' }; // Défaut : date la plus proche
             if (params?.sort) {
                 switch (params.sort) {
                     case 'date-asc': orderBy = { startDate: 'asc' }; break;
@@ -127,6 +136,8 @@ export const eventService = {
                 title: eventData.title,
                 description: eventData.description,
                 location: eventData.location,
+                city: eventData.cityId ? { connect: { id: eventData.cityId } } : undefined,
+                category: eventData.categoryId ? { connect: { id: eventData.categoryId } } : undefined,
                 startDate: eventData.startDate ? new Date(eventData.startDate) : new Date(),
                 endDate: eventData.endDate ? new Date(eventData.endDate) : undefined,
                 price: eventData.price,
@@ -140,14 +151,13 @@ export const eventService = {
                 organizer: {
                     connect: { id: eventData.organizerId || 'usr-admin-1' }
                 }
-            } as any
+            }
         });
         return event as unknown as Event;
     },
 
     async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const dataToUpdate: Record<string, unknown> = { ...(eventData as any) };
+        const dataToUpdate: Record<string, unknown> = { ...eventData } as Record<string, unknown>;
         if (dataToUpdate.id) delete dataToUpdate.id;
         if (dataToUpdate.organizerId) delete dataToUpdate.organizerId;
         if (dataToUpdate.startDate) dataToUpdate.startDate = new Date(dataToUpdate.startDate as string);
