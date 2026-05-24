@@ -73,6 +73,14 @@ export default async function TicketPage({ params }: PageProps) {
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Heure</p>
                                 <p className="font-semibold">{new Date(event.startDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
+                            <div>
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Ville</p>
+                                <p className="font-semibold">{event.city?.name || 'Non spécifiée'}</p>
+                            </div>
+                            <div>
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Catégorie</p>
+                                <p className="font-semibold">{event.category?.name || 'Non spécifiée'}</p>
+                            </div>
                             <div className="col-span-2">
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Lieu</p>
                                 <p className="font-semibold">{event.location}</p>

@@ -69,7 +69,7 @@ export default async function AccountPage() {
                                                     🎫
                                                 </div>
                                                 <h3 className="font-bold text-lg mb-1 truncate">{event?.title || 'Événement inconnu'}</h3>
-                                                <div className="flex items-center gap-2 mb-4">
+                                                <div className="flex flex-wrap items-center gap-2 mb-4">
                                                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                                                         ticket.type === 'VIP' 
                                                         ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
@@ -77,7 +77,15 @@ export default async function AccountPage() {
                                                     }`}>
                                                         {ticket.type === 'VIP' ? '👑 VIP' : 'Standard'}
                                                     </span>
-                                                    <p className="text-xs text-neutral-400 truncate -mb-0.5">{event?.location || 'Lieu inconnu'}</p>
+                                                    {event?.category && (
+                                                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-primary-950/40 text-primary-300 border border-primary-800/30">
+                                                            {event.category.name}
+                                                        </span>
+                                                    )}
+                                                    <p className="text-xs text-neutral-400 truncate -mb-0.5">
+                                                        {event?.location || 'Lieu inconnu'}
+                                                        {event?.city && ` (${event.city.name})`}
+                                                    </p>
                                                 </div>
 
                                                 <div className="flex justify-between items-center text-sm pt-4 border-t border-white/5">

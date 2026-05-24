@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { Button } from '@/shared/components/ui/Button';
 
 export const metadata = {
-  title: 'À propos | AstroPass',
-  description: 'En savoir plus sur AstroPass, la plateforme de billetterie nouvelle génération.',
+  title: 'À propos | NyotaPass',
+  description: 'En savoir plus sur NyotaPass, la plateforme de billetterie nouvelle génération.',
 };
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#050811]/40 to-transparent pointer-events-none" />
           <div className="relative z-10 space-y-6">
             <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-white animate-slide-up leading-tight">
-              À propos de <span className="text-gradient">AstroPass</span>
+              À propos de <span className="text-gradient">NyotaPass</span>
             </h1>
             <p className="text-lg md:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed animate-slide-up [animation-delay:0.1s] text-balance">
               La plateforme de billetterie de référence au Congo. Nous connectons les organisateurs et les passionnés pour créer des expériences inoubliables.

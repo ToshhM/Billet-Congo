@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!event) {
         return {
-            title: 'Événement non trouvé | AstroPass',
+            title: 'Événement non trouvé | NyotaPass',
         };
     }
 
@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         : event.description;
 
     return {
-        title: `${event.title} | AstroPass`,
+        title: `${event.title} | NyotaPass`,
         description: description,
         openGraph: {
             title: event.title,
             description: description,
-            url: `https://astropass.com/events/${event.id}`,
-            siteName: 'AstroPass',
+            url: `https://nyotapass.com/events/${event.id}`,
+            siteName: 'NyotaPass',
             images: event.imageUrl ? [
                 {
                     url: event.imageUrl,
@@ -108,9 +108,11 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 <span className="glass text-primary-100 border-primary-500/30 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase shadow-[0_0_10px_rgba(109,59,255,0.3)]">
                                     {event.status === 'PUBLISHED' ? 'En vente' : event.status}
                                 </span>
-                                <span className="bg-white/5 text-neutral-300 border border-white/10 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">
-                                    Concert
-                                </span>
+                                {event.category && (
+                                    <span className="bg-white/5 text-neutral-300 border border-white/10 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">
+                                        {event.category.name}
+                                    </span>
+                                )}
                             </div>
 
                             <h1 className="text-4xl md:text-6xl font-heading font-extrabold mb-6 leading-tight text-white drop-shadow-lg">
@@ -143,7 +145,10 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     </div>
                                     <div>
                                         <div className="text-sm text-neutral-400 font-medium mb-1">Lieu</div>
-                                        <div className="font-semibold text-white">{event.location}</div>
+                                        <div className="font-semibold text-white">
+                                            {event.location}
+                                            {event.city && <span className="text-neutral-400 font-normal"> ({event.city.name})</span>}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

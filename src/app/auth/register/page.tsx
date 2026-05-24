@@ -34,7 +34,7 @@ export default function RegisterPage() {
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-500 via-accent-500 to-primary-500"></div>
                 <div className="text-center mb-8 pt-4">
                     <h1 className="text-3xl font-heading font-bold mb-2 text-white tracking-tight">Créer un compte</h1>
-                    <p className="text-neutral-400">Rejoignez AstroPass dès aujourd&apos;hui</p>
+                    <p className="text-neutral-400">Rejoignez NyotaPass dès aujourd&apos;hui</p>
                 </div>
 
                 {error && (

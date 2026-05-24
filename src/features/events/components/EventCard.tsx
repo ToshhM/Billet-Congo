@@ -89,15 +89,25 @@ export const EventCard = ({ event }: EventCardProps) => {
 
                 <div className="p-5 flex flex-col flex-1">
                     <div className="flex flex-col gap-1 mb-4">
-                        <span className="text-[10px] font-bold text-primary-400 uppercase tracking-[0.2em]">
-                            {displayDate}
-                        </span>
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold text-primary-400 uppercase tracking-[0.2em]">
+                                {displayDate}
+                            </span>
+                            {event.category && (
+                                <span className="text-[9px] font-extrabold bg-primary-950/40 text-primary-300 border border-primary-800/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    {event.category.name}
+                                </span>
+                            )}
+                        </div>
                         <h3 className="text-xl font-heading font-bold text-white transition-colors line-clamp-1">
                             {event.title}
                         </h3>
                         <p className="text-sm text-neutral-400 flex items-center gap-1 font-medium">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                            {event.location}
+                            <span className="truncate">
+                                {event.location}
+                                {event.city && <span className="text-neutral-500 font-normal"> ({event.city.name})</span>}
+                            </span>
                         </p>
                     </div>
 

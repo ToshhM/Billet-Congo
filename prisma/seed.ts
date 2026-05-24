@@ -53,12 +53,33 @@ async function main() {
         }
     });
 
+    // 4.5 Création des villes et catégories de Test
+    const brazzaville = await prisma.city.upsert({
+        where: { name: 'Brazzaville' },
+        update: {},
+        create: { name: 'Brazzaville' }
+    });
+
+    const concertCategory = await prisma.category.upsert({
+        where: { name: 'Concert' },
+        update: {},
+        create: { name: 'Concert' }
+    });
+
+    const techCategory = await prisma.category.upsert({
+        where: { name: 'Business' },
+        update: {},
+        create: { name: 'Business' }
+    });
+
     // 5. Création des Événements de Test (appartenant au PROMOTER)
     await prisma.event.create({
         data: {
             title: 'Festival Poto-Poto Rumba',
             description: 'Le plus grand festival de Rumba Congolaise de l\'année au cœur de Brazzaville.',
             location: 'Stade de la Révolution, Brazzaville',
+            cityId: brazzaville.id,
+            categoryId: concertCategory.id,
             startDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // Dans 7 jours
             price: 5000,
             capacity: 500,
@@ -73,6 +94,8 @@ async function main() {
             title: 'Congo Tech Summit 2026',
             description: 'Rencontre avec les plus grands esprits de la tech en Afrique Centrale.',
             location: 'Palais des Congrès, Brazzaville',
+            cityId: brazzaville.id,
+            categoryId: techCategory.id,
             startDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14), // Dans 14 jours
             price: 15000,
             capacity: 200,

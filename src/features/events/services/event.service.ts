@@ -45,7 +45,8 @@ export const eventService = {
 
             const events = await prisma.event.findMany({
                 where,
-                orderBy
+                orderBy,
+                include: { city: true, category: true }
             });
             
             return events.map(e => ({
@@ -66,7 +67,8 @@ export const eventService = {
             const where = role === 'PROMOTER' ? { organizerId: userId } : {};
             const events = await prisma.event.findMany({
                 where,
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: 'desc' },
+                include: { city: true, category: true }
             });
             return events.map(e => ({
                 ...e,
@@ -113,7 +115,8 @@ export const eventService = {
     async getEventById(id: string): Promise<Event | null> {
         try {
             const event = await prisma.event.findUnique({
-                where: { id }
+                where: { id },
+                include: { city: true, category: true }
             });
             if (!event) return null;
 

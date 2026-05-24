@@ -8,6 +8,8 @@ export interface Event {
     location: string;
     cityId?: string | null;
     categoryId?: string | null;
+    city?: { id: string; name: string } | null;
+    category?: { id: string; name: string } | null;
     startDate: string; // ISO string
     endDate?: string;  // ISO string
     price: number;

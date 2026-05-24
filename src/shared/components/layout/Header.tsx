@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCurrentUser, logoutAction } from '@/features/auth/server/auth.actions';
 import { MobileMenu } from './MobileMenu';
 
@@ -11,8 +12,16 @@ export const Header = async () => {
       <div className="mx-auto max-w-6xl h-16 glass rounded-full flex items-center justify-between px-6 shadow-sm">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="text-xl font-heading font-bold text-accent-500 tracking-tight">
-            AstroPass
+          <Link href="/" className="flex items-center group">
+            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-white/10 bg-neutral-950 shadow-sm flex items-center justify-center shrink-0">
+              <Image 
+                src="/logo.jpg" 
+                alt="NyotaPass Logo" 
+                fill 
+                className="object-cover" 
+                priority
+              />
+            </div>
           </Link>
         </div>
 
