@@ -35,7 +35,7 @@ export async function processMobileMoneyPaymentAction(formData: FormData): Promi
         } else {
             throw new Error('Le paiement a échoué ou a expiré.');
         }
-    } catch (err) {
+    } catch {
         throw new Error('Une erreur serveur est survenue.');
     }
 
@@ -78,7 +78,7 @@ export async function processGuestPaymentAction(formData: FormData): Promise<voi
 
         if (response.success && response.tickets && response.tickets.length > 0) {
             // Créer une session réelle pour le guest
-            const { token } = await authService.createSession(guestUser as any);
+            const { token } = await authService.createSession(guestUser as unknown as import('@/features/auth/types').User);
             const cookieStore = await cookies();
             cookieStore.set('congo_session', token, { 
                 httpOnly: true, 

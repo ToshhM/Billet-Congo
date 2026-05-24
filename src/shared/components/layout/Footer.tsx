@@ -1,14 +1,24 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const Footer = () => {
     return (
         <footer className="border-t border-white/10 bg-neutral-950 py-12 mt-20">
             <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 className="text-xl font-heading font-bold text-accent-500 mb-4 tracking-tight">
-                        AstroPass
-                    </h3>
+                    <div className="mb-4">
+                        <Link href="/" className="flex items-center group w-fit">
+                            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-white/10 bg-neutral-900/50 shadow-sm flex items-center justify-center shrink-0">
+                                <Image 
+                                    src="/logo.png" 
+                                    alt="NyotaPass Logo" 
+                                    fill 
+                                    className="object-contain p-1" 
+                                />
+                            </div>
+                        </Link>
+                    </div>
                     <p className="text-sm text-neutral-400">
                         La première plateforme de billetterie fluide au Congo Brazzaville. Sécurisée, rapide, optimisée pour Mobile Money.
                     </p>
@@ -37,7 +47,7 @@ export const Footer = () => {
                 </div>
             </div>
             <div className="container mx-auto px-4 mt-12 pt-8 border-t border-white/10 text-center text-sm text-neutral-500">
-                &copy; {new Date().getFullYear()} AstroPass. Tous droits réservés.
+                &copy; {new Date().getFullYear()} NyotaPass. Tous droits réservés.
             </div>
         </footer>
     );

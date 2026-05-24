@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
 
 export default async function EditAccountPage() {
     const user = await getCurrentUser();

@@ -22,7 +22,7 @@ export const authService = {
                 password: hashedPassword,
                 fullName,
                 role: finalRole,
-            } as any
+            }
         });
 
         return user as unknown as User;
@@ -50,9 +50,9 @@ export const authService = {
             where: { phoneNumber }
         });
 
-        if (!user || !(user as any).password) return null;
+        if (!user || !user.password) return null;
 
-        const isPasswordValid = await bcrypt.compare(password, (user as any).password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) return null;
 
         return this.createSession(user as unknown as User);
@@ -72,7 +72,7 @@ export const authService = {
             if (user) {
                 return { user: user as unknown as User, token };
             }
-        } catch (error) {
+        } catch {
             // Silently handle invalid tokens (e.g. from old mock sessions)
             return null;
         }
@@ -87,10 +87,11 @@ export const authService = {
         return users as unknown as User[];
     },
 
-    async updateUser(id: string, data: Partial<User>): Promise<User> {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const dataToUpdate: any = { ...data };
-        if (dataToUpdate.id) delete dataToUpdate.id;
+    async updateUser(id: string, data: Partial<User> & { password?: string }): Promise<User> {
+        const dataToUpdate = { ...data };
+        if ('id' in dataToUpdate) {
+            delete (dataToUpdate as { id?: string }).id;
+        }
         if (dataToUpdate.password) {
             dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, 10);
         }

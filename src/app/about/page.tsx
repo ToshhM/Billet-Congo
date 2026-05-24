@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { Button } from '@/shared/components/ui/Button';
 
 export const metadata = {
-  title: 'À propos | AstroPass',
-  description: 'En savoir plus sur AstroPass, la plateforme de billetterie nouvelle génération.',
+  title: 'À propos | NyotaPass',
+  description: 'En savoir plus sur NyotaPass, la plateforme de billetterie nouvelle génération.',
 };
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#050811]/40 to-transparent pointer-events-none" />
           <div className="relative z-10 space-y-6">
             <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-white animate-slide-up leading-tight">
-              À propos de <span className="text-gradient">AstroPass</span>
+              À propos de <span className="text-gradient">NyotaPass</span>
             </h1>
             <p className="text-lg md:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed animate-slide-up [animation-delay:0.1s] text-balance">
               La plateforme de billetterie de référence au Congo. Nous connectons les organisateurs et les passionnés pour créer des expériences inoubliables.
@@ -33,17 +33,17 @@ export default function AboutPage() {
             <div className="space-y-4">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">Notre Mission</h2>
               <p className="text-neutral-400 leading-relaxed">
-                Démocratiser l'accès à la culture et au divertissement en offrant une solution de billetterie simple, sécurisée et transparente pour tous les événements, des concerts intimes aux grands festivals.
+                {"Démocratiser l'accès à la culture et au divertissement en offrant une solution de billetterie simple, sécurisée et transparente pour tous les événements, des concerts intimes aux grands festivals."}
               </p>
               <p className="text-neutral-400 leading-relaxed">
-                Nous fournissons aux organisateurs des outils puissants pour gérer leurs événements, tout en garantissant aux participants une expérience d'achat fluide et sans friction.
+                {"Nous fournissons aux organisateurs des outils puissants pour gérer leurs événements, tout en garantissant aux participants une expérience d'achat fluide et sans friction."}
               </p>
             </div>
 
             <div className="space-y-4">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">Notre Vision</h2>
               <p className="text-neutral-400 leading-relaxed">
-                Devenir l'écosystème central du divertissement en Afrique centrale, en innovant constamment pour repousser les limites de l'expérience événementielle numérique.
+                {"Devenir l'écosystème central du divertissement en Afrique centrale, en innovant constamment pour repousser les limites de l'expérience événementielle numérique."}
               </p>
             </div>
 
@@ -67,7 +67,7 @@ export default function AboutPage() {
                 </svg>
               </div>
               <div className="relative z-10 space-y-4">
-                <h3 className="text-3xl font-heading font-bold text-white">L'Excellence</h3>
+                <h3 className="text-3xl font-heading font-bold text-white">{"L'Excellence"}</h3>
                 <p className="text-neutral-400 text-base leading-relaxed">
                   Nous nous engageons à fournir le meilleur service possible, avec une plateforme robuste et un support client réactif pour chaque événement.
                 </p>

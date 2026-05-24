@@ -17,6 +17,8 @@ export async function createOrUpdateEventAction(formData: FormData) {
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const location = formData.get('location') as string;
+    const cityId = formData.get('cityId') as string | null;
+    const categoryId = formData.get('categoryId') as string | null;
     const startDate = formData.get('startDate') as string; // datetime-local format
     const endDate = formData.get('endDate') as string; // datetime-local format
     const price = parseInt(formData.get('price') as string, 10);
@@ -55,12 +57,12 @@ export async function createOrUpdateEventAction(formData: FormData) {
 
         // Update
         await eventService.updateEvent(id, {
-            title, description, location, startDate: isoStartDate, endDate: isoEndDate, price, vipPrice, capacity, vipCapacity, status, imageUrl: finalImageUrl
+            title, description, location, cityId, categoryId, startDate: isoStartDate, endDate: isoEndDate, price, vipPrice, capacity, vipCapacity, status, imageUrl: finalImageUrl
         });
     } else {
         // Create
         await eventService.createEvent({
-            title, description, location, startDate: isoStartDate, endDate: isoEndDate, price, vipPrice, capacity, vipCapacity, status, imageUrl: finalImageUrl,
+            title, description, location, cityId, categoryId, startDate: isoStartDate, endDate: isoEndDate, price, vipPrice, capacity, vipCapacity, status, imageUrl: finalImageUrl,
             currency: 'XAF', organizerId: user.id
         });
     }

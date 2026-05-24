@@ -2,7 +2,6 @@ import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import { paymentService } from '@/features/checkout/services/payment.service';
 import { getEventById } from '@/features/events/services/event.service';
 import { redirect, notFound } from 'next/navigation';
-import { Card } from '@/shared/components/ui/Card';
 import { DownloadTicketButton } from '@/shared/components/ui/DownloadTicketButton';
 import Link from 'next/link';
 // Composant de génération de QR Code
@@ -73,6 +72,14 @@ export default async function TicketPage({ params }: PageProps) {
                             <div>
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Heure</p>
                                 <p className="font-semibold">{new Date(event.startDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                            <div>
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Ville</p>
+                                <p className="font-semibold">{event.city?.name || 'Non spécifiée'}</p>
+                            </div>
+                            <div>
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Catégorie</p>
+                                <p className="font-semibold">{event.category?.name || 'Non spécifiée'}</p>
                             </div>
                             <div className="col-span-2">
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Lieu</p>

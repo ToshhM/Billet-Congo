@@ -1,5 +1,7 @@
 import { createOrUpdateEventAction } from '@/features/events/server/event.actions';
 import { eventService } from '@/features/events/services/event.service';
+import { getCities } from '@/features/events/services/city.service';
+import { getCategories } from '@/features/events/services/category.service';
 import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
@@ -12,7 +14,11 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     if (!user || !['ADMIN', 'PROMOTER'].includes(user.role)) redirect('/auth/login');
 
     const resolvedParams = await params;
-    const event = await eventService.getEventById(resolvedParams.id);
+    const [event, cities, categories] = await Promise.all([
+        eventService.getEventById(resolvedParams.id),
+        getCities(),
+        getCategories(),
+    ]);
 
     if (!event) notFound();
 
@@ -51,7 +57,27 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-2 text-neutral-300">Lieu</label>
+                            <label className="block text-sm font-medium mb-2 text-neutral-300">Catégorie</label>
+                            <select name="categoryId" defaultValue={event.categoryId || ''} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une catégorie</option>
+                                {categories.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-neutral-300">Ville</label>
+                            <select name="cityId" defaultValue={event.cityId || ''} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une ville</option>
+                                {cities.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium mb-2 text-neutral-300">Adresse / Lieu exact</label>
                             <input type="text" name="location" defaultValue={event.location} required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm" />
                         </div>
 
@@ -106,10 +132,10 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium mb-2 text-neutral-300">Statut de publication</label>
                             <select name="status" defaultValue={event.status} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
-                                <option value="DRAFT">Brouillon (Non visible)</option>
-                                <option value="PUBLISHED">Publié (En vente)</option>
-                                <option value="CANCELLED">Annulé</option>
-                                <option value="COMPLETED">Terminé</option>
+                                <option value="DRAFT" className="text-neutral-900">Brouillon (Non visible)</option>
+                                <option value="PUBLISHED" className="text-neutral-900">Publié (En vente)</option>
+                                <option value="CANCELLED" className="text-neutral-900">Annulé</option>
+                                <option value="COMPLETED" className="text-neutral-900">Terminé</option>
                             </select>
                         </div>
                     </div>

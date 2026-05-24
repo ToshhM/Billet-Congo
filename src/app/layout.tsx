@@ -9,7 +9,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-  title: 'AstroPass | La Billetterie en Ligne du Congo',
+  title: 'NyotaPass | La Billetterie en Ligne du Congo',
   description: 'Achetez vos billets d\'événements en quelques clics via Mobile Money.',
 };
 

@@ -2,6 +2,7 @@ import { getCurrentUser, logoutAction } from '@/features/auth/server/auth.action
 import { redirect } from 'next/navigation';
 import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function ScannerLayout({ children }: { children: React.ReactNode }) {
     const user = await getCurrentUser();
@@ -18,8 +19,18 @@ export default async function ScannerLayout({ children }: { children: React.Reac
         <div className="min-h-screen bg-neutral-50 flex flex-col">
             <header className="bg-white border-b border-neutral-200 p-4 shrink-0 flex justify-between items-center sticky top-0 z-10">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-bold text-primary-600 hidden md:block">
-                        AstroPass
+                    <Link href="/" className="hidden md:block">
+                        <div className="flex items-center group">
+                            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-900/5 shadow-sm flex items-center justify-center shrink-0">
+                                <Image 
+                                    src="/logo.png" 
+                                    alt="NyotaPass Logo" 
+                                    fill 
+                                    className="object-contain p-1" 
+                                    priority
+                                />
+                            </div>
+                        </div>
                     </Link>
                     <span className="px-3 py-1 bg-primary-50 text-primary-700 font-bold text-xs rounded-full uppercase tracking-widest border border-primary-200">
                         Mode Scan

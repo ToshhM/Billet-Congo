@@ -34,6 +34,7 @@ function TicketInfoRow({ label, value, accent }: { label: string; value?: string
     if (!value) return null;
     return (
         <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-bold text-neutral-400 uppercase">{label}</span>
             <span className={`font-semibold text-sm ${accent ? 'text-amber-600' : 'text-neutral-900'}`}>{value}</span>
         </div>
     );
@@ -50,7 +51,7 @@ export default function ScannerPage() {
 
     const inputRef = useRef<HTMLInputElement>(null);
     const lastScannedRef = useRef<string>('');
-    const scannerInstanceRef = useRef<any>(null);
+    const scannerInstanceRef = useRef<import('html5-qrcode').Html5QrcodeScanner | null>(null);
 
     /* ── Process ────────────────────────────────── */
     const processScan = useCallback(async (code: string) => {
@@ -87,7 +88,7 @@ export default function ScannerPage() {
     useEffect(() => {
         if (activeTab !== 'camera') return;
 
-        let scanner: any = null;
+        let scanner: import('html5-qrcode').Html5QrcodeScanner | null = null;
         setScannerReady(false);
 
         const initScanner = async () => {
@@ -222,12 +223,12 @@ export default function ScannerPage() {
                         {/* Infos billet */}
                         {lastScan.ticket && (
                             <div className="w-full mt-2 pt-4 border-t border-neutral-200 grid grid-cols-2 gap-4 text-left">
-                                <TicketInfoRow label="Événement" value={(lastScan.ticket as any).eventTitle} />
-                                <TicketInfoRow label="Porteur" value={(lastScan.ticket as any).holderName} />
+                                <TicketInfoRow label="Événement" value={lastScan.ticket.eventTitle} />
+                                <TicketInfoRow label="Porteur" value={lastScan.ticket.holderName} />
                                 <TicketInfoRow
                                     label="Type de billet"
-                                    value={(lastScan.ticket as any).ticketType}
-                                    accent={(lastScan.ticket as any).ticketType === 'VIP'}
+                                    value={lastScan.ticket.ticketType}
+                                    accent={lastScan.ticket.ticketType === 'VIP'}
                                 />
                                 <TicketInfoRow label="Référence" value={lastScan.ticket.reference} />
                             </div>
@@ -261,13 +262,13 @@ export default function ScannerPage() {
                                 <span className="text-lg shrink-0">{h.success ? '✅' : '❌'}</span>
                                 <div className="flex-1 min-w-0">
                                     <div className="font-semibold truncate">
-                                        {(h.ticket as any)?.eventTitle ?? '—'}
+                                        {h.ticket?.eventTitle ?? '—'}
                                     </div>
                                     <div className="text-xs opacity-60 font-mono truncate">
                                         {h.ticket?.reference ?? h.message}
                                     </div>
                                 </div>
-                                {(h.ticket as any)?.ticketType === 'VIP' && (
+                                {h.ticket?.ticketType === 'VIP' && (
                                     <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 uppercase">VIP</span>
                                 )}
                             </div>

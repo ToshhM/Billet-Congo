@@ -1,9 +1,16 @@
 import { createOrUpdateEventAction } from '@/features/events/server/event.actions';
+import { getCities } from '@/features/events/services/city.service';
+import { getCategories } from '@/features/events/services/category.service';
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
 
-export default function OrganisateurNewEventPage() {
+export default async function OrganisateurNewEventPage() {
+    const [cities, categories] = await Promise.all([
+        getCities(),
+        getCategories(),
+    ]);
+
     return (
         <div className="p-4 md:p-12 max-w-4xl mx-auto">
             <div className="mb-6 text-primary-600">
@@ -28,7 +35,27 @@ export default function OrganisateurNewEventPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Lieu / Ville</label>
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Catégorie</label>
+                            <select name="categoryId" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une catégorie</option>
+                                {categories.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Ville</label>
+                            <select name="cityId" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm">
+                                <option value="" className="text-neutral-900">Sélectionnez une ville</option>
+                                {cities.map(c => (
+                                    <option key={c.id} value={c.id} className="text-neutral-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-sm mb-2 text-neutral-600 uppercase tracking-widest text-[10px] font-bold">Lieu / Adresse exacte</label>
                             <input type="text" name="location" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all shadow-sm transition-all" placeholder="Ex: Palais du Peuple" />
                         </div>
 
