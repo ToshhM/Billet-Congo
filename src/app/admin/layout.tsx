@@ -23,12 +23,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <aside className="w-64 bg-[#0B1020] border-r border-white/10 hidden md:flex flex-col h-screen sticky top-0 z-10 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
                 <div className="p-6 border-b border-white/10 flex flex-col items-center">
                     <Link href="/" className="flex items-center group">
-                        <div className="relative w-12 h-12 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-sm flex items-center justify-center shrink-0">
+                        <div className="relative w-12 h-12 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/50 shadow-sm flex items-center justify-center shrink-0">
                             <Image 
-                                src="/logo.jpg" 
+                                src="/logo.png" 
                                 alt="NyotaPass Logo" 
                                 fill 
-                                className="object-cover" 
+                                className="object-contain p-1.5" 
                                 priority
                             />
                         </div>

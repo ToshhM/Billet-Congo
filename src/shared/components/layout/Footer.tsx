@@ -9,12 +9,12 @@ export const Footer = () => {
                 <div>
                     <div className="mb-4">
                         <Link href="/" className="flex items-center group w-fit">
-                            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-white/10 bg-neutral-950 shadow-sm flex items-center justify-center shrink-0">
+                            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-white/10 bg-neutral-900/50 shadow-sm flex items-center justify-center shrink-0">
                                 <Image 
-                                    src="/logo.jpg" 
+                                    src="/logo.png" 
                                     alt="NyotaPass Logo" 
                                     fill 
-                                    className="object-cover" 
+                                    className="object-contain p-1" 
                                 />
                             </div>
                         </Link>

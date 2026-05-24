@@ -17,18 +17,17 @@ declare const globalThis: {
 // Réutilisation du pool de connexions existant ou création d'un nouveau
 const pool = globalThis.pgPoolGlobal ?? new pg.Pool({
   connectionString: databaseUrl,
-  max: 10,
+  max: 15,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 30000, // Augmenté à 30s pour tolérer la latence élevée avec l'Irlande
 })
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.pgPoolGlobal = pool
 }
 
-const adapter = new PrismaPg(pool as any)
-
 const prismaClientSingleton = () => {
+  const adapter = new PrismaPg(pool as any)
   return new PrismaClient({ adapter })
 }
 
