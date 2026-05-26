@@ -112,6 +112,12 @@ export const paymentService = {
                     }
                 });
 
+                // Log copy-pasteable PowerShell command in local console for developers to test securely
+                console.log(`\n==================================================`);
+                console.log(`[PAWAPAY TEST] Commande de simulation de validation (Webhook) :`);
+                console.log(`Invoke-RestMethod -Uri "http://localhost:3000/api/webhooks/pawapay" -Method Post -ContentType "application/json" -Body '{"depositId": "${depositId}", "status": "COMPLETED", "amount": "${Math.round(order.totalPrice)}", "currency": "${order.event.currency}", "country": "CG", "provider": "MTN_CG"}'`);
+                console.log(`==================================================\n`);
+
                 return { success: true };
             } else {
                 const errData = await response.text();
@@ -132,19 +138,11 @@ export const paymentService = {
     },
 
     async fulfillOrder(depositId: string): Promise<boolean> {
-        // Find the payment record linked to the depositId (transactionId)
-        let payment = await prisma.payment.findUnique({
+        // Find the payment record linked strictly to the depositId (transactionId)
+        const payment = await prisma.payment.findUnique({
             where: { transactionId: depositId },
             include: { order: true }
         });
-        
-        // Fallback for local testing: allow using the order cuid (orderId) instead of the transaction UUIDv4
-        if (!payment) {
-            payment = await prisma.payment.findUnique({
-                where: { orderId: depositId },
-                include: { order: true }
-            });
-        }
         
         if (!payment || payment.status === 'SUCCESS') {
             return false;
@@ -165,7 +163,7 @@ export const paymentService = {
                 
                 // 2. Mark payment as SUCCESS
                 await tx.payment.update({
-                    where: { id: payment!.id },
+                    where: { id: payment.id },
                     data: { status: 'SUCCESS' }
                 });
                 
@@ -204,18 +202,10 @@ export const paymentService = {
     },
 
     async failOrder(depositId: string): Promise<boolean> {
-        let payment = await prisma.payment.findUnique({
+        const payment = await prisma.payment.findUnique({
             where: { transactionId: depositId },
             include: { order: true }
         });
-        
-        // Fallback for local testing: allow using the order cuid (orderId) instead of the transaction UUIDv4
-        if (!payment) {
-            payment = await prisma.payment.findUnique({
-                where: { orderId: depositId },
-                include: { order: true }
-            });
-        }
         
         if (!payment || payment.status === 'FAILED') {
             return false;
@@ -226,7 +216,7 @@ export const paymentService = {
         try {
             await prisma.$transaction(async (tx) => {
                 await tx.payment.update({
-                    where: { id: payment!.id },
+                    where: { id: payment.id },
                     data: { status: 'FAILED' }
                 });
                 
