@@ -6,7 +6,14 @@ import { paymentService } from '@/features/checkout/services/payment.service';
 import { eventService } from '@/features/events/services/event.service';
 import Link from 'next/link';
 
-export default async function AccountPage() {
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function AccountPage({ searchParams }: PageProps) {
+    const resolvedSearchParams = await searchParams;
+    const isPending = resolvedSearchParams.pending === 'true';
+
     const user = await getCurrentUser();
     const role = user?.role?.toUpperCase();
     if (!user) {
@@ -24,6 +31,18 @@ export default async function AccountPage() {
 
     return (
         <div className="container mx-auto px-4 py-20">
+            {isPending && (
+                <div className="mb-8 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 flex gap-4 items-start shadow-lg shadow-amber-500/5 animate-pulse">
+                    <span className="text-2xl mt-0.5">⏳</span>
+                    <div>
+                        <h3 className="font-bold text-lg text-white mb-1">Paiement Mobile Money Initié</h3>
+                        <p className="text-sm text-neutral-300 leading-relaxed">
+                            Une demande de paiement a été envoyée sur votre téléphone. Veuillez saisir votre **code PIN Mobile Money** pour confirmer l&apos;achat. 
+                            Vos billets s&apos;afficheront automatiquement sur cette page dès que la transaction sera validée.
+                        </p>
+                    </div>
+                </div>
+            )}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-white/10 pb-8">
                 <div>
                     <h1 className="text-4xl font-bold mb-2">Mon Espace</h1>

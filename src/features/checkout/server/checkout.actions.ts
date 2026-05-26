@@ -26,17 +26,14 @@ export async function processMobileMoneyPaymentAction(formData: FormData): Promi
     try {
         const response = await paymentService.processMobileMoneyPayment(sessionId, phone, provider);
 
-        if (response.success && response.tickets && response.tickets.length > 0) {
-            if (response.tickets.length === 1) {
-                redirectUrl = `/account/ticket/${response.tickets[0].id}`;
-            } else {
-                redirectUrl = `/account?success=true`;
-            }
+        if (response.success) {
+            redirectUrl = `/account?pending=true`;
         } else {
-            throw new Error('Le paiement a échoué ou a expiré.');
+            throw new Error('L\'initiation du paiement a échoué.');
         }
-    } catch {
-        throw new Error('Une erreur serveur est survenue.');
+    } catch (e) {
+        console.error("Payment initiation error:", e);
+        throw new Error('Une erreur serveur est survenue lors de l\'appel à PawaPay.');
     }
 
     if (redirectUrl) {
@@ -76,7 +73,7 @@ export async function processGuestPaymentAction(formData: FormData): Promise<voi
     try {
         const response = await paymentService.processMobileMoneyPayment(session.id, phone, provider);
 
-        if (response.success && response.tickets && response.tickets.length > 0) {
+        if (response.success) {
             // Créer une session réelle pour le guest
             const { token } = await authService.createSession(guestUser as unknown as import('@/features/auth/types').User);
             const cookieStore = await cookies();
@@ -87,13 +84,9 @@ export async function processGuestPaymentAction(formData: FormData): Promise<voi
                 sameSite: 'lax'
             });
 
-            if (response.tickets.length === 1) {
-                redirectUrl = `/account/ticket/${response.tickets[0].id}`;
-            } else {
-                redirectUrl = `/account?success=true`;
-            }
+            redirectUrl = `/account?pending=true`;
         } else {
-            throw new Error('Le paiement a échoué ou a expiré.');
+            throw new Error('L\'initiation du paiement a échoué.');
         }
     } catch (err) {
         console.error("Erreur serveur", err);
