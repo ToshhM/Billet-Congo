@@ -85,9 +85,15 @@ export default async function TicketPage({ params }: PageProps) {
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Lieu</p>
                                 <p className="font-semibold">{event.location}</p>
                             </div>
-                            <div className="col-span-2 pt-4">
+                            <div className="pt-4">
                                 <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Participant</p>
-                                <p className="font-bold text-lg">{user.fullName}</p>
+                                <p className="font-bold text-base">{user.fullName}</p>
+                            </div>
+                            <div className="pt-4">
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Prix Payé</p>
+                                <p className="font-extrabold text-base text-emerald-600">
+                                    {ticket.pricePaid ? `${new Intl.NumberFormat('fr-FR').format(ticket.pricePaid)} ${event.currency}` : `0 ${event.currency}`}
+                                </p>
                             </div>
                         </div>
                     </div>
