@@ -133,10 +133,18 @@ export const paymentService = {
 
     async fulfillOrder(depositId: string): Promise<boolean> {
         // Find the payment record linked to the depositId (transactionId)
-        const payment = await prisma.payment.findUnique({
+        let payment = await prisma.payment.findUnique({
             where: { transactionId: depositId },
             include: { order: true }
         });
+        
+        // Fallback for local testing: allow using the order cuid (orderId) instead of the transaction UUIDv4
+        if (!payment) {
+            payment = await prisma.payment.findUnique({
+                where: { orderId: depositId },
+                include: { order: true }
+            });
+        }
         
         if (!payment || payment.status === 'SUCCESS') {
             return false;
@@ -157,7 +165,7 @@ export const paymentService = {
                 
                 // 2. Mark payment as SUCCESS
                 await tx.payment.update({
-                    where: { id: payment.id },
+                    where: { id: payment!.id },
                     data: { status: 'SUCCESS' }
                 });
                 
@@ -196,10 +204,18 @@ export const paymentService = {
     },
 
     async failOrder(depositId: string): Promise<boolean> {
-        const payment = await prisma.payment.findUnique({
+        let payment = await prisma.payment.findUnique({
             where: { transactionId: depositId },
             include: { order: true }
         });
+        
+        // Fallback for local testing: allow using the order cuid (orderId) instead of the transaction UUIDv4
+        if (!payment) {
+            payment = await prisma.payment.findUnique({
+                where: { orderId: depositId },
+                include: { order: true }
+            });
+        }
         
         if (!payment || payment.status === 'FAILED') {
             return false;
@@ -210,7 +226,7 @@ export const paymentService = {
         try {
             await prisma.$transaction(async (tx) => {
                 await tx.payment.update({
-                    where: { id: payment.id },
+                    where: { id: payment!.id },
                     data: { status: 'FAILED' }
                 });
                 
