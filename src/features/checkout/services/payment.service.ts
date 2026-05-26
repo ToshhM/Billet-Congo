@@ -202,7 +202,7 @@ export const paymentService = {
         }
     },
 
-    async failOrder(depositId: string): Promise<boolean> {
+    async failOrder(depositId: string, failureReason?: { failureCode: string; failureMessage: string }): Promise<boolean> {
         const payment = await prisma.payment.findUnique({
             where: { transactionId: depositId },
             include: { order: true }
@@ -210,6 +210,12 @@ export const paymentService = {
         
         if (!payment || payment.status === 'FAILED') {
             return false;
+        }
+
+        if (failureReason) {
+            console.error(`\n[PawaPay Error] Payment failed for depositId: ${depositId}`);
+            console.error(`  - Code: ${failureReason.failureCode}`);
+            console.error(`  - Message: ${failureReason.failureMessage}\n`);
         }
         
         const order = payment.order;

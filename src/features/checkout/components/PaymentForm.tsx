@@ -76,9 +76,9 @@ export default function PaymentForm({
                     >
                         <div className="flex flex-col items-center gap-2">
                             <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/New-mtn-logo.svg/512px-New-mtn-logo.svg.png"
+                                src="https://www.logo.wine/a/logo/MTN_Group/MTN_Group-Logo.wine.svg"
                                 alt="MTN Mobile Money"
-                                className="h-10 w-auto object-contain select-none filter drop-shadow-md"
+                                className="h-14 w-auto object-contain select-none filter drop-shadow-md -my-2"
                             />
                             <span className="text-[11px] font-bold tracking-wider text-yellow-500 uppercase">
                                 Mobile Money
@@ -97,11 +97,11 @@ export default function PaymentForm({
                     >
                         <div className="flex flex-col items-center gap-2">
                             <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Airtel_Logo.svg/512px-Airtel_Logo.svg.png"
+                                src="https://www.logo.wine/a/logo/Bharti_Airtel/Bharti_Airtel-Logo.wine.svg"
                                 alt="Airtel Money"
-                                className="h-9 w-auto object-contain select-none filter drop-shadow-md"
+                                className="h-14 w-auto object-contain select-none filter drop-shadow-md -my-2"
                             />
-                            <span className="text-[11px] font-bold tracking-wider text-red-500 uppercase mt-1">
+                            <span className="text-[11px] font-bold tracking-wider text-red-500 uppercase">
                                 Airtel Money
                             </span>
                         </div>

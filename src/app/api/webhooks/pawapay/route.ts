@@ -7,7 +7,7 @@ export async function POST(request: Request) {
         
         console.log("PawaPay Webhook received:", JSON.stringify(body));
 
-        const { depositId, status } = body;
+        const { depositId, status, failureReason } = body;
 
         if (!depositId || !status) {
             return NextResponse.json({ error: 'Missing depositId or status' }, { status: 400 });
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
             success = await paymentService.fulfillOrder(depositId);
             console.log(`Order fulfillment status for ${depositId}: ${success}`);
         } else if (status === 'FAILED') {
-            success = await paymentService.failOrder(depositId);
+            success = await paymentService.failOrder(depositId, failureReason);
             console.log(`Order failure handling status for ${depositId}: ${success}`);
         } else {
             console.warn(`Unhandled PawaPay webhook status: ${status} for depositId: ${depositId}`);

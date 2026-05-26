@@ -95,6 +95,12 @@ export default async function TicketPage({ params }: PageProps) {
                                     {ticket.pricePaid ? `${new Intl.NumberFormat('fr-FR').format(ticket.pricePaid)} ${event.currency}` : `0 ${event.currency}`}
                                 </p>
                             </div>
+                            <div className="col-span-2 pt-4 border-t border-neutral-100 mt-2">
+                                <p className="text-neutral-500 text-xs font-bold uppercase mb-1">Date et heure d&apos;achat</p>
+                                <p className="font-semibold text-neutral-800 text-sm">
+                                    {new Date(ticket.purchaseDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} à {new Date(ticket.purchaseDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                            </div>
                         </div>
                     </div>
 

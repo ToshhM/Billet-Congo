@@ -33,6 +33,30 @@ export default async function AccountPage({ searchParams }: PageProps) {
 
     return (
         <div className="container mx-auto px-4 py-20">
+            {resolvedSearchParams.success === 'true' && (
+                <div className="mb-8 p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 flex gap-4 items-start shadow-lg shadow-emerald-500/5">
+                    <span className="text-2xl mt-0.5">✅</span>
+                    <div>
+                        <h3 className="font-bold text-lg text-white mb-1">Paiement Validé !</h3>
+                        <p className="text-sm text-neutral-300 leading-relaxed">
+                            Votre paiement a été reçu avec succès. Vos billets ont été générés et sont disponibles ci-dessous. Bon événement !
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {resolvedSearchParams.error === 'payment_failed' && (
+                <div className="mb-8 p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200 flex gap-4 items-start shadow-lg shadow-red-500/5">
+                    <span className="text-2xl mt-0.5">❌</span>
+                    <div>
+                        <h3 className="font-bold text-lg text-white mb-1">Échec du Paiement</h3>
+                        <p className="text-sm text-neutral-300 leading-relaxed">
+                            La transaction a été annulée ou a échoué. Si votre compte a été débité par erreur ou si vous souhaitez réessayer, n&apos;hésitez pas à relancer la réservation.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {isPending && (
                 <div className="mb-8 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 flex gap-4 items-start shadow-lg shadow-amber-500/5 animate-pulse">
                     <span className="text-2xl mt-0.5">⏳</span>
