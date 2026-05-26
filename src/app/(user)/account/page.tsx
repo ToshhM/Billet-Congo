@@ -5,6 +5,7 @@ import { Card } from '@/shared/components/ui/Card';
 import { paymentService } from '@/features/checkout/services/payment.service';
 import { eventService } from '@/features/events/services/event.service';
 import Link from 'next/link';
+import PendingPaymentPoller from '@/features/checkout/components/PendingPaymentPoller';
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -13,6 +14,7 @@ interface PageProps {
 export default async function AccountPage({ searchParams }: PageProps) {
     const resolvedSearchParams = await searchParams;
     const isPending = resolvedSearchParams.pending === 'true';
+    const orderId = typeof resolvedSearchParams.orderId === 'string' ? resolvedSearchParams.orderId : undefined;
 
     const user = await getCurrentUser();
     const role = user?.role?.toUpperCase();
@@ -41,6 +43,7 @@ export default async function AccountPage({ searchParams }: PageProps) {
                             Vos billets s&apos;afficheront automatiquement sur cette page dès que la transaction sera validée.
                         </p>
                     </div>
+                    {orderId && <PendingPaymentPoller orderId={orderId} />}
                 </div>
             )}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 border-b border-white/10 pb-8">

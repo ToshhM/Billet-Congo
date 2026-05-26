@@ -27,7 +27,7 @@ export async function processMobileMoneyPaymentAction(formData: FormData): Promi
         const response = await paymentService.processMobileMoneyPayment(sessionId, phone, provider);
 
         if (response.success) {
-            redirectUrl = `/account?pending=true`;
+            redirectUrl = `/account?pending=true&orderId=${sessionId}`;
         } else {
             throw new Error('L\'initiation du paiement a échoué.');
         }
@@ -84,7 +84,7 @@ export async function processGuestPaymentAction(formData: FormData): Promise<voi
                 sameSite: 'lax'
             });
 
-            redirectUrl = `/account?pending=true`;
+            redirectUrl = `/account?pending=true&orderId=${session.id}`;
         } else {
             throw new Error('L\'initiation du paiement a échoué.');
         }

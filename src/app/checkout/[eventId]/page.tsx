@@ -2,9 +2,8 @@ import { getEventById } from '@/features/events/services/event.service';
 import { paymentService } from '@/features/checkout/services/payment.service';
 import { getCurrentUser } from '@/features/auth/server/auth.actions';
 import { notFound } from 'next/navigation';
-import { Card } from '@/shared/components/ui/Card';
-import { Button } from '@/shared/components/ui/Button';
 import { processMobileMoneyPaymentAction, processGuestPaymentAction } from '@/features/checkout/server/checkout.actions';
+import PaymentForm from '@/features/checkout/components/PaymentForm';
 
 interface PageProps {
     params: Promise<{ eventId: string }>;
@@ -43,12 +42,12 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
     return (
         <div className="container mx-auto px-4 py-20 max-w-5xl animate-fade-in">
-            <h1 className="text-3xl font-extrabold mb-10 text-white tracking-tight">Finaliser la réservation</h1>
+            <h1 className="text-3xl font-extrabold mb-12 text-white tracking-tight">Finaliser la réservation</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
 
                 {/* Colonne gauche : Résumé */}
-                <div className="md:col-span-1 border-b md:border-b-0 border-white/10 pb-8 md:pb-0 md:border-r pr-0 md:pr-10 mb-8 md:mb-0">
+                <div className="md:col-span-1 border-b md:border-b-0 border-white/10 pb-10 md:pb-0 md:border-r pr-0 md:pr-12 mb-10 md:mb-0">
                     <h2 className="text-xl font-bold mb-6 text-white">Résumé de la commande</h2>
 
                     <div className="mb-8">
@@ -78,7 +77,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
                 </div>
 
                 {/* Colonne droite : Paiement */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 md:pl-4">
                     <div className="glass p-8 md:p-10 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
                         {/* Glow effects for premium spatial feel */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -92,84 +91,15 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
                             Sélectionnez votre opérateur et entrez votre numéro. Vous recevrez une invitation à saisir votre code PIN sur votre téléphone pour valider l&apos;achat.
                         </p>
 
-                        <form action={user ? processMobileMoneyPaymentAction : processGuestPaymentAction} className="space-y-6 relative z-10">
-                            {user ? (
-                                <input type="hidden" name="sessionId" value={session!.id} />
-                            ) : (
-                                <>
-                                    <input type="hidden" name="eventId" value={event.id} />
-                                    <input type="hidden" name="quantity" value={safeQuantity} />
-                                    <input type="hidden" name="type" value={ticketType} />
-                                </>
-                            )}
-
-                            {!user && (
-                                <div className="space-y-4">
-                                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 mb-3">Vos informations</h3>
-                                    <div>
-                                        <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Nom et Prénom</label>
-                                        <input
-                                            type="text"
-                                            name="fullName"
-                                            required
-                                            placeholder="Ex: John Doe"
-                                            className="w-full bg-neutral-950/40 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-inner transition-all"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="space-y-4">
-                                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 mb-3">Opérateur de Mobile Money</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <label className="cursor-pointer relative group">
-                                        <input type="radio" name="provider" value="MTN" className="peer sr-only" defaultChecked />
-                                        <div className="bg-neutral-950/30 border border-white/10 rounded-2xl p-5 text-center peer-checked:border-yellow-500/80 peer-checked:bg-yellow-500/10 peer-checked:shadow-[0_0_20px_-3px_rgba(234,179,8,0.2)] hover:bg-neutral-950/50 hover:border-white/20 transition-all duration-300">
-                                            {/* MTN MoMo Premium Logo SVG */}
-                                            <svg viewBox="0 0 120 40" className="h-8 w-auto mx-auto select-none">
-                                                <rect width="120" height="40" rx="8" fill="#FFCC00" />
-                                                <ellipse cx="38" cy="20" rx="20" ry="11" fill="none" stroke="#000" strokeWidth="2" />
-                                                <text x="38" y="23" fontFamily="var(--font-sans), sans-serif" fontSize="9" fontWeight="900" fill="#000" textAnchor="middle">MTN</text>
-                                                <text x="82" y="25" fontFamily="var(--font-sans), sans-serif" fontSize="11" fontWeight="bold" fill="#000" textAnchor="middle">MoMo</text>
-                                            </svg>
-                                        </div>
-                                    </label>
-                                    <label className="cursor-pointer relative group">
-                                        <input type="radio" name="provider" value="AIRTEL" className="peer sr-only" />
-                                        <div className="bg-neutral-950/30 border border-white/10 rounded-2xl p-5 text-center peer-checked:border-red-600/80 peer-checked:bg-red-600/10 peer-checked:shadow-[0_0_20px_-3px_rgba(220,38,38,0.2)] hover:bg-neutral-950/50 hover:border-white/20 transition-all duration-300">
-                                            {/* Airtel Money Premium Logo SVG */}
-                                            <svg viewBox="0 0 120 40" className="h-8 w-auto mx-auto select-none">
-                                                <rect width="120" height="40" rx="8" fill="#E31837" />
-                                                <circle cx="35" cy="20" r="10" fill="#FFF" />
-                                                <path d="M 33 16 C 30 16, 28 19, 28 22 C 28 25, 30 27, 33 27 C 36 27, 38 25, 38 22 C 38 18, 35 16, 33 16 Z M 33 24 C 31 24, 30 23, 30 21.5 C 30 20, 31 19, 33 19 C 34.5 19, 35.5 20, 35.5 21.5 C 35.5 23, 34.5 24, 33 24 Z" fill="#E31837" />
-                                                <text x="78" y="24" fontFamily="var(--font-sans), sans-serif" fontSize="11" fontWeight="bold" fill="#FFF" textAnchor="middle">airtel</text>
-                                            </svg>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Numéro de Mobile Money</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    defaultValue={user?.phoneNumber || ''}
-                                    required
-                                    placeholder="Ex: 06 123 45 67"
-                                    className="w-full bg-neutral-950/40 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-inner transition-all"
-                                />
-                            </div>
-
-                            <div className="pt-4">
-                                <Button type="submit" fullWidth size="lg" className="h-14 text-lg font-bold bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg shadow-primary-500/20 transition-all duration-300">
-                                    Payer {new Intl.NumberFormat('fr-FR').format(totalPrice)} {event.currency}
-                                </Button>
-                                <p className="text-center text-xs text-neutral-500 mt-4 leading-relaxed">
-                                    En cliquant sur Payer, vous acceptez nos CGV.
-                                </p>
-                            </div>
-                        </form>
+                        <PaymentForm
+                            action={user ? processMobileMoneyPaymentAction : processGuestPaymentAction}
+                            user={user}
+                            session={session}
+                            event={event}
+                            ticketType={ticketType}
+                            safeQuantity={safeQuantity}
+                            totalPrice={totalPrice}
+                        />
                     </div>
                 </div>
             </div>
