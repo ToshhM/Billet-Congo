@@ -164,10 +164,12 @@ export const eventService = {
         if (dataToUpdate.id) delete dataToUpdate.id;
         if (dataToUpdate.organizerId) delete dataToUpdate.organizerId;
         if (dataToUpdate.startDate) dataToUpdate.startDate = new Date(dataToUpdate.startDate as string);
-        if (dataToUpdate.endDate) dataToUpdate.endDate = new Date(dataToUpdate.endDate as string);
-
-        // Si la capacité VIP est mise à jour, on peut éventuellement vouloir recalculer availableVipTickets
-        // Mais restons simples pour l'instant.
+        
+        if (dataToUpdate.endDate) {
+            dataToUpdate.endDate = new Date(dataToUpdate.endDate as string);
+        } else if (dataToUpdate.endDate === null) {
+            dataToUpdate.endDate = null;
+        }
 
         const event = await prisma.event.update({
             where: { id },

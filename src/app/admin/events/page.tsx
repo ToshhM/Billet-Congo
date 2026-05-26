@@ -6,7 +6,14 @@ import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import Link from 'next/link';
 
-export default async function AdminEventsPage() {
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function AdminEventsPage({ searchParams }: PageProps) {
+    const resolvedSearchParams = await searchParams;
+    const isError = resolvedSearchParams.error === 'has_orders';
+
     const user = await getCurrentUser();
     if (!user || (user.role.toUpperCase() !== 'ADMIN' && user.role.toUpperCase() !== 'PROMOTER')) {
         redirect('/auth/login?error=not_authorized');
@@ -16,6 +23,18 @@ export default async function AdminEventsPage() {
 
     return (
         <div className="p-4 md:p-12">
+            {isError && (
+                <div className="mb-6 p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200 flex gap-4 items-start shadow-lg shadow-red-500/5 animate-fade-in">
+                    <span className="text-xl">⚠️</span>
+                    <div>
+                        <h3 className="font-bold text-white mb-0.5">Impossible de supprimer cet événement</h3>
+                        <p className="text-sm text-neutral-300">
+                            Des billets ou des réservations sont déjà associés à cet événement. Pour préserver l&apos;intégrité de la billetterie, sa suppression définitive est bloquée. Vous pouvez à la place le passer en <strong>Brouillon (non visible)</strong> en cliquant sur l&apos;icône 👁️.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-heading font-bold mb-2 text-white">Gestion des événements</h1>

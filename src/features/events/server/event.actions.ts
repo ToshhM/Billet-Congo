@@ -17,17 +17,21 @@ export async function createOrUpdateEventAction(formData: FormData) {
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const location = formData.get('location') as string;
-    const cityId = formData.get('cityId') as string | null;
-    const categoryId = formData.get('categoryId') as string | null;
+    const rawCityId = formData.get('cityId') as string | null;
+    const cityId = rawCityId && rawCityId.trim() !== '' ? rawCityId : null;
+
+    const rawCategoryId = formData.get('categoryId') as string | null;
+    const categoryId = rawCategoryId && rawCategoryId.trim() !== '' ? rawCategoryId : null;
+
     const startDate = formData.get('startDate') as string; // datetime-local format
     const endDate = formData.get('endDate') as string; // datetime-local format
     const price = parseInt(formData.get('price') as string, 10);
     const vipPriceStr = formData.get('vipPrice') as string;
-    const vipPrice = vipPriceStr ? parseInt(vipPriceStr, 10) : undefined;
+    const vipPrice = vipPriceStr && vipPriceStr.trim() !== '' ? parseInt(vipPriceStr, 10) : null;
     
     const capacity = parseInt(formData.get('capacity') as string, 10);
     const vipCapacityStr = formData.get('vipCapacity') as string;
-    const vipCapacity = vipCapacityStr ? parseInt(vipCapacityStr, 10) : undefined;
+    const vipCapacity = vipCapacityStr && vipCapacityStr.trim() !== '' ? parseInt(vipCapacityStr, 10) : null;
 
     const status = formData.get('status') as EventStatus;
     
@@ -44,7 +48,7 @@ export async function createOrUpdateEventAction(formData: FormData) {
 
     // Conversion simple date locale en ISO
     const isoStartDate = new Date(startDate).toISOString();
-    const isoEndDate = endDate ? new Date(endDate).toISOString() : undefined;
+    const isoEndDate = endDate && endDate.trim() !== '' ? new Date(endDate).toISOString() : null;
 
     if (id) {
         // Update check
@@ -90,11 +94,18 @@ export async function deleteEventAction(formData: FormData) {
         }
     }
 
-    await eventService.deleteEvent(id);
+    const success = await eventService.deleteEvent(id);
+
+    const redirectBase = user.role.toUpperCase() === 'ADMIN' ? '/admin/events' : '/organisateur/events';
+    
+    if (!success) {
+        redirect(`${redirectBase}?error=has_orders`);
+    }
 
     revalidatePath('/admin/events');
     revalidatePath('/organisateur/events');
     revalidatePath('/');
+    redirect(redirectBase);
 }
 
 export async function toggleEventStatusAction(formData: FormData) {
