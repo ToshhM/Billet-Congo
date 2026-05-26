@@ -113,10 +113,11 @@ export const paymentService = {
                 });
 
                 // Log copy-pasteable PowerShell command in local console for developers to test securely
-                console.log(`\n==================================================`);
-                console.log(`[PAWAPAY TEST] Commande de simulation de validation (Webhook) :`);
+                console.log(`\n# ==================================================`);
+                console.log(`# SIMULATION DU WEBHOOK LOCAL (POWERSHELL)`);
+                console.log(`# Copie et colle ce bloc entier dans ton terminal PowerShell :`);
                 console.log(`Invoke-RestMethod -Uri "http://localhost:3000/api/webhooks/pawapay" -Method Post -ContentType "application/json" -Body '{"depositId": "${depositId}", "status": "COMPLETED", "amount": "${Math.round(order.totalPrice)}", "currency": "${order.event.currency}", "country": "CG", "provider": "MTN_CG"}'`);
-                console.log(`==================================================\n`);
+                console.log(`# ==================================================\n`);
 
                 return { success: true };
             } else {
