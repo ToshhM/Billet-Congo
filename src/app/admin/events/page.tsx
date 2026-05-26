@@ -6,22 +6,45 @@ import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import Link from 'next/link';
 
-export default async function AdminEventsPage() {
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function AdminEventsPage({ searchParams }: PageProps) {
+    const resolvedSearchParams = await searchParams;
+    const isError = resolvedSearchParams.error === 'has_orders';
+
     const user = await getCurrentUser();
-    if (!user || !['ADMIN', 'PROMOTER'].includes(user.role)) redirect('/login');
+    if (!user || (user.role.toUpperCase() !== 'ADMIN' && user.role.toUpperCase() !== 'PROMOTER')) {
+        redirect('/auth/login?error=not_authorized');
+    }
 
     const events = await eventService.getAdminEvents(user.id, user.role);
 
     return (
-        <div className="p-8 md:p-12">
+        <div className="p-4 md:p-12">
+            {isError && (
+                <div className="mb-6 p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200 flex gap-4 items-start shadow-lg shadow-red-500/5 animate-fade-in">
+                    <span className="text-xl">⚠️</span>
+                    <div>
+                        <h3 className="font-bold text-white mb-0.5">Impossible de supprimer cet événement</h3>
+                        <p className="text-sm text-neutral-300">
+                            Des billets ou des réservations sont déjà associés à cet événement. Pour préserver l&apos;intégrité de la billetterie, sa suppression définitive est bloquée. Vous pouvez à la place le passer en <strong>Brouillon (non visible)</strong> en cliquant sur l&apos;icône 👁️.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">Gestion des événements</h1>
-                    <p className="text-neutral-400">Gérez le catalogue des événements visibles par les clients.</p>
+                    <h1 className="text-3xl font-heading font-bold mb-2 text-white">Gestion des événements</h1>
+                    <p className="text-neutral-400 text-sm md:text-base">Gérez le catalogue des événements visibles par les clients.</p>
                 </div>
-                <Link href="/admin/events/new">
-                    <Button>+ Nouvel événement</Button>
-                </Link>
+                <div className="w-full md:w-auto">
+                    <Link href="/admin/events/new" className="block w-full">
+                        <Button className="w-full md:w-auto">+ Nouvel événement</Button>
+                    </Link>
+                </div>
             </div>
 
             <Card className="overflow-hidden">
@@ -29,11 +52,11 @@ export default async function AdminEventsPage() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-neutral-900 border-b border-white/10 text-sm text-neutral-400">
-                                <th className="p-4 font-semibold">Titre & Lieu</th>
-                                <th className="p-4 font-semibold">Date</th>
-                                <th className="p-4 font-semibold">Prix (XAF)</th>
-                                <th className="p-4 font-semibold">Tickets (Restants / Total)</th>
-                                <th className="p-4 font-semibold">Statut</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Titre & Lieu</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Date</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Prix (XAF)</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Tickets (Restants / Total)</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Statut</th>
                                 <th className="p-4 font-semibold text-right">Actions</th>
                             </tr>
                         </thead>
@@ -79,7 +102,10 @@ export default async function AdminEventsPage() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <form action={toggleEventStatusAction}>
+                                                <form action={async (formData) => {
+                                                    'use server';
+                                                    await toggleEventStatusAction(formData);
+                                                }}>
                                                     <input type="hidden" name="id" value={event.id} />
                                                     <input type="hidden" name="currentStatus" value={event.status} />
                                                     <Button variant="ghost" size="sm" type="submit" className="text-neutral-400 hover:text-white" title={event.status === 'PUBLISHED' ? 'Passer en brouillon' : 'Publier'}>
@@ -93,9 +119,12 @@ export default async function AdminEventsPage() {
                                                     </Button>
                                                 </Link>
 
-                                                <form action={deleteEventAction}>
+                                                <form action={async (formData) => {
+                                                    'use server';
+                                                    await deleteEventAction(formData);
+                                                }}>
                                                     <input type="hidden" name="id" value={event.id} />
-                                                    <Button variant="ghost" size="sm" type="submit" className="text-red-400 hover:bg-red-500/10" title="Supprimer" formAction={deleteEventAction}>
+                                                    <Button variant="ghost" size="sm" type="submit" className="text-red-400 hover:bg-red-500/10" title="Supprimer">
                                                         🗑️
                                                     </Button>
                                                 </form>

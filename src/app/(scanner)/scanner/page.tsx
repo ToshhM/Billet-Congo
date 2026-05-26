@@ -1,37 +1,74 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { submitScanAction } from '@/features/scanner/server/scanner.actions';
-import { Button } from '@/shared/components/ui/Button';
 import { ScanResult } from '@/features/scanner/services/scanner.service';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 
+/* ── Types ────────────────────────────────────── */
+type Tab = 'camera' | 'manual';
+
+/* ── Helpers ──────────────────────────────────── */
+function StatusBadge({ success }: { success: boolean }) {
+    return success ? (
+        <div className="flex flex-col items-center gap-2">
+            <div className="w-24 h-24 rounded-full bg-emerald-500/20 border-4 border-emerald-500 flex items-center justify-center animate-in zoom-in-75 duration-300">
+                <svg className="w-12 h-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <span className="text-2xl font-black text-emerald-400 tracking-wider uppercase">Accès Autorisé</span>
+        </div>
+    ) : (
+        <div className="flex flex-col items-center gap-2">
+            <div className="w-24 h-24 rounded-full bg-red-500/20 border-4 border-red-500 flex items-center justify-center animate-in zoom-in-75 duration-300">
+                <svg className="w-12 h-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+            <span className="text-2xl font-black text-red-400 tracking-wider uppercase">Accès Refusé</span>
+        </div>
+    );
+}
+
+function TicketInfoRow({ label, value, accent }: { label: string; value?: string | null; accent?: boolean }) {
+    if (!value) return null;
+    return (
+        <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-bold text-neutral-400 uppercase">{label}</span>
+            <span className={`font-semibold text-sm ${accent ? 'text-amber-600' : 'text-neutral-900'}`}>{value}</span>
+        </div>
+    );
+}
+
+/* ── Main Component ───────────────────────────── */
 export default function ScannerPage() {
-    const [activeTab, setActiveTab] = useState<'camera' | 'manual'>('camera');
+    const [activeTab, setActiveTab] = useState<Tab>('camera');
     const [reference, setReference] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [lastScan, setLastScan] = useState<ScanResult | null>(null);
     const [history, setHistory] = useState<ScanResult[]>([]);
-    
+    const [scannerReady, setScannerReady] = useState(false);
+
     const inputRef = useRef<HTMLInputElement>(null);
     const lastScannedRef = useRef<string>('');
+    const scannerInstanceRef = useRef<import('html5-qrcode').Html5QrcodeScanner | null>(null);
 
-    const processScan = async (code: string) => {
+    /* ── Process ────────────────────────────────── */
+    const processScan = useCallback(async (code: string) => {
         setIsLoading(true);
         setLastScan(null);
-
         try {
             const result = await submitScanAction(code);
             setLastScan(result);
-            setHistory(prev => [result, ...prev].slice(0, 10)); // Conserve les 10 derniers scans
-        } catch (error) {
-            console.error(error);
+            setHistory(prev => [result, ...prev].slice(0, 15));
+        } catch (err) {
+            console.error(err);
+            setLastScan({ success: false, message: 'Erreur réseau. Réessayez.' });
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
-    // Handle manual form submission
     const handleManualScan = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (!reference.trim() || isLoading) return;
@@ -40,130 +77,200 @@ export default function ScannerPage() {
         setTimeout(() => inputRef.current?.focus(), 100);
     };
 
-    // Handle camera scan
-    const handleCameraScan = async (decodedText: string) => {
+    const handleCameraScan = useCallback(async (decodedText: string) => {
         if (isLoading || lastScannedRef.current === decodedText) return;
-        
         lastScannedRef.current = decodedText;
-        setTimeout(() => { lastScannedRef.current = ''; }, 3000); // 3 seconds cooldown
-        
+        setTimeout(() => { lastScannedRef.current = ''; }, 3000);
         await processScan(decodedText.trim());
-    };
+    }, [isLoading, processScan]);
 
-    // Use a ref to avoid stale closure in the scanner callback
-    const handleCameraScanRef = useRef(handleCameraScan);
+    /* ── Camera init ────────────────────────────── */
     useEffect(() => {
-        handleCameraScanRef.current = handleCameraScan;
-    });
+        if (activeTab !== 'camera') return;
 
-    useEffect(() => {
-        if (activeTab === 'camera') {
-            const scanner = new Html5QrcodeScanner(
-                "qr-reader",
-                { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                },
+        let scanner: import('html5-qrcode').Html5QrcodeScanner | null = null;
+        setScannerReady(false);
+
+        const initScanner = async () => {
+            const { Html5QrcodeScanner } = await import('html5-qrcode');
+            scanner = new Html5QrcodeScanner(
+                "qr-reader-container",
+                { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
                 false
             );
-
+            scannerInstanceRef.current = scanner;
             scanner.render(
-                (decodedText) => {
-                    handleCameraScanRef.current(decodedText);
-                },
-                (error) => {
-                    // Ignore normal background scan failures
-                }
+                (text: string) => handleCameraScan(text),
+                () => { /* ignore scan failures */ }
             );
+            setScannerReady(true);
+        };
 
-            return () => {
-                scanner.clear().catch(console.error);
-            };
-        }
+        initScanner().catch(console.error);
+
+        return () => {
+            if (scanner) scanner.clear().catch(console.error);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
+    /* ── Render ─────────────────────────────────── */
     return (
-        <div className="flex flex-col gap-8 pb-10">
-            <div className="text-center">
-                <h1 className="text-3xl font-bold mb-2">Contrôle d&apos;accès</h1>
-                <p className="text-neutral-400">Scannez un QR Code ou tapez la référence du ticket.</p>
+        <div className="flex flex-col gap-6 pb-12">
+
+            {/* Header */}
+            <div className="text-center pt-2">
+                <h1 className="text-2xl font-black tracking-tight mb-1">Contrôle d&apos;Accès</h1>
+                <p className="text-neutral-500 text-sm">Scannez ou saisissez la référence du billet</p>
             </div>
 
             {/* Onglets */}
-            <div className="flex bg-neutral-900 rounded-2xl p-1 border border-white/10 mx-auto w-full max-w-md">
-                <button 
-                    onClick={() => setActiveTab('camera')}
-                    className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${activeTab === 'camera' ? 'bg-primary-500 text-white shadow-lg' : 'text-neutral-400 hover:text-white'}`}
-                >
-                    📷 Appareil Photo
-                </button>
-                <button 
-                    onClick={() => setActiveTab('manual')}
-                    className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${activeTab === 'manual' ? 'bg-primary-500 text-white shadow-lg' : 'text-neutral-400 hover:text-white'}`}
-                >
-                    ⌨️ Saisie Manuelle
-                </button>
+            <div className="flex bg-neutral-100 rounded-2xl p-1 border border-neutral-200">
+                {(['camera', 'manual'] as Tab[]).map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => { setActiveTab(tab); setLastScan(null); }}
+                        className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                            activeTab === tab
+                                ? 'bg-primary-600 text-white shadow-sm'
+                                : 'text-neutral-500 hover:text-neutral-900'
+                        }`}
+                    >
+                        {tab === 'camera' ? '📷 Appareil Photo' : '⌨️ Saisie Manuelle'}
+                    </button>
+                ))}
             </div>
 
-            <div className="bg-neutral-900 border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl mx-auto w-full max-w-xl">
+            {/* Zone de scan */}
+            <div className="bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm">
                 {activeTab === 'camera' ? (
-                    <div className="flex flex-col items-center">
-                        <div id="qr-reader" className="w-full max-w-sm rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:w-full"></div>
-                        {isLoading && <p className="mt-4 text-primary-400 animate-pulse font-medium">Vérification en cours...</p>}
+                    <div className="flex flex-col items-center p-6 gap-4">
+                        {/* Scanner QR */}
+                        <div className="relative w-full max-w-sm">
+                            <div
+                                id="qr-reader-container"
+                                className="w-full rounded-2xl overflow-hidden [&_video]:rounded-xl [&_video]:w-full [&_#qr-reader-container__dashboard]:hidden [&_#qr-reader__dashboard]:hidden"
+                            />
+                            {/* Overlay de chargement initial */}
+                            {!scannerReady && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 rounded-2xl">
+                                    <div className="text-center">
+                                        <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                                        <p className="text-neutral-500 text-sm">Initialisation caméra...</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Cadre visuel indicatif */}
+                        {scannerReady && (
+                            <p className="text-xs text-neutral-500 text-center">
+                                Placez le QR code dans le cadre pour le scanner automatiquement
+                            </p>
+                        )}
+
+                        {isLoading && (
+                            <div className="flex items-center gap-3 text-primary-600 font-semibold text-sm animate-pulse">
+                                <div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                                Vérification en cours...
+                            </div>
+                        )}
                     </div>
                 ) : (
-                    <form onSubmit={handleManualScan} className="flex flex-col gap-4">
+                    <form onSubmit={handleManualScan} className="p-6 flex flex-col gap-4">
+                        <label className="block text-sm font-medium text-neutral-600">Référence du billet</label>
                         <input
                             ref={inputRef}
                             type="text"
                             value={reference}
                             onChange={(e) => setReference(e.target.value)}
-                            placeholder="Référence (ex: TKT-...)"
-                            className="w-full bg-neutral-950 border-2 border-white/10 focus:border-primary-500 rounded-2xl px-6 py-5 text-xl text-center font-mono placeholder:text-neutral-600 outline-none transition-colors"
+                            placeholder="TKT-XXXXXXXX"
                             autoFocus
+                            autoComplete="off"
+                            className="w-full bg-neutral-50 border border-neutral-200 focus:border-primary-500 rounded-2xl px-5 py-4 text-2xl text-center font-mono tracking-widest placeholder:text-neutral-400 outline-none transition-colors"
                         />
-                        <Button type="submit" size="lg" className="h-16 text-xl" disabled={isLoading || !reference.trim()}>
-                            {isLoading ? 'Vérification en cours...' : 'Valider le Billet'}
-                        </Button>
+                        <button
+                            type="submit"
+                            disabled={isLoading || !reference.trim()}
+                            className="w-full h-14 rounded-2xl bg-primary-600 hover:bg-primary-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                    Vérification...
+                                </>
+                            ) : (
+                                'Valider le Billet'
+                            )}
+                        </button>
                     </form>
                 )}
             </div>
 
-            {/* Résultat du dernier scan */}
+            {/* Résultat du scan */}
             {lastScan && (
-                <div className={`rounded-3xl p-8 text-center animate-in fade-in slide-in-from-bottom-4 shadow-2xl border-2 mx-auto w-full max-w-xl ${lastScan.success ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' : 'bg-red-500/10 border-red-500/50 text-red-500'}`}>
-                    <div className="text-6xl mb-4">{lastScan.success ? '✅' : '❌'}</div>
-                    <h2 className="text-3xl font-bold mb-2">{lastScan.success ? 'ACCÈS AUTORISÉ' : 'ACCÈS REFUSÉ'}</h2>
-                    <p className="text-lg font-medium">{lastScan.message}</p>
+                <div className={`rounded-3xl p-6 border animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+                    lastScan.success
+                        ? 'bg-emerald-50 border-emerald-200'
+                        : 'bg-red-50 border-red-200'
+                }`}>
+                    <div className="flex flex-col items-center text-center gap-4">
+                        <StatusBadge success={lastScan.success} />
+                        <p className={`text-base font-semibold ${lastScan.success ? 'text-emerald-700' : 'text-red-700'}`}>
+                            {lastScan.message}
+                        </p>
 
-                    {lastScan.ticket && (
-                        <div className="mt-6 pt-6 border-t border-current/20 text-sm text-left grid grid-cols-2 gap-4 opacity-90">
-                            <div>
-                                <span className="block opacity-70 text-xs uppercase tracking-widest mb-1">Evénement ID</span>
-                                <span className="font-bold">{lastScan.ticket.eventId}</span>
+                        {/* Infos billet */}
+                        {lastScan.ticket && (
+                            <div className="w-full mt-2 pt-4 border-t border-neutral-200 grid grid-cols-2 gap-4 text-left">
+                                <TicketInfoRow label="Événement" value={lastScan.ticket.eventTitle} />
+                                <TicketInfoRow label="Porteur" value={lastScan.ticket.holderName} />
+                                <TicketInfoRow
+                                    label="Type de billet"
+                                    value={lastScan.ticket.ticketType}
+                                    accent={lastScan.ticket.ticketType === 'VIP'}
+                                />
+                                <TicketInfoRow label="Référence" value={lastScan.ticket.reference} />
                             </div>
-                            <div>
-                                <span className="block opacity-70 text-xs uppercase tracking-widest mb-1">Réf</span>
-                                <span className="font-mono break-all">{lastScan.ticket.reference}</span>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
 
-            {/* Historique récent */}
+            {/* Journal des scans */}
             {history.length > 0 && (
-                <div className="mt-4 mx-auto w-full max-w-xl">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">⏱️ Journal Récent</h3>
-                    <div className="space-y-3">
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Journal récent</h3>
+                        <button
+                            onClick={() => setHistory([])}
+                            className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+                        >
+                            Effacer
+                        </button>
+                    </div>
+                    <div className="space-y-2">
                         {history.map((h, i) => (
-                            <div key={i} className={`flex items-center gap-4 p-4 rounded-xl border ${h.success ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'} text-sm`}>
-                                <div className="text-2xl">{h.success ? '✅' : '❌'}</div>
-                                <div>
-                                    <div className={`font-bold ${h.success ? 'text-emerald-400' : 'text-red-400'}`}>{h.message}</div>
-                                    {h.ticket?.reference && <div className="font-mono text-neutral-500 mt-1 truncate max-w-[200px]">{h.ticket.reference}</div>}
+                            <div
+                                key={i}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm ${
+                                    h.success
+                                        ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                                        : 'bg-red-50 border-red-100 text-red-800'
+                                }`}
+                            >
+                                <span className="text-lg shrink-0">{h.success ? '✅' : '❌'}</span>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-semibold truncate">
+                                        {h.ticket?.eventTitle ?? '—'}
+                                    </div>
+                                    <div className="text-xs opacity-60 font-mono truncate">
+                                        {h.ticket?.reference ?? h.message}
+                                    </div>
                                 </div>
+                                {h.ticket?.ticketType === 'VIP' && (
+                                    <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 uppercase">VIP</span>
+                                )}
                             </div>
                         ))}
                     </div>

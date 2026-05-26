@@ -11,6 +11,7 @@ model User {
   email       String    @unique
   phoneNumber String    @unique
   fullName    String
+  password    String?
   role        String    @default("CLIENT") // CLIENT, PROMOTER, SCANNER, ADMIN
   tickets     Ticket[]
   events      Event[]   @relation("EventOrganizer")
@@ -20,41 +21,68 @@ model User {
   updatedAt   DateTime  @updatedAt
 }
 
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Event {
-  id               String   @id @default(cuid())
-  title            String
-  description      String?
-  imageUrl         String?
-  location         String
-  startDate        DateTime
-  price            Float
-  currency         String   @default("XAF")
-  capacity         Int
-  availableTickets Int
-  status           String   @default("PUBLISHED")
-  organizerId      String
-  organizer        User     @relation("EventOrganizer", fields: [organizerId], references: [id])
-  tickets          Ticket[]
-  orders           Order[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  title               String
+  description         String?
+  imageUrl            String?
+  location            String
+  cityId              String?
+  city                City?     @relation(fields: [cityId], references: [id])
+  categoryId          String?
+  category            Category? @relation(fields: [categoryId], references: [id])
+  startDate           DateTime
+  endDate             DateTime?
+  price               Float
+  vipPrice            Float?
+  currency            String    @default("XAF")
+  capacity            Int
+  availableTickets    Int
+  vipCapacity         Int?
+  availableVipTickets Int?
+  status              String    @default("PUBLISHED")
+  organizerId         String
+  organizer           User      @relation("EventOrganizer", fields: [organizerId], references: [id])
+  tickets             Ticket[]
+  orders              Order[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 model Order {
-  id          String    @id @default(cuid())
-  eventId     String
-  event       Event     @relation(fields: [eventId], references: [id])
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  quantity    Int
-  totalPrice  Float
-  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
-  payment     Payment?
-  tickets     Ticket[]
-  expiresAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  eventId    String
+  event      Event     @relation(fields: [eventId], references: [id])
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  quantity   Int
+  totalPrice Float
+  ticketType String    @default("STANDARD") // STANDARD, VIP
+  status     String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  payment    Payment?
+  tickets    Ticket[]
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
+  @@index([userId])
+  @@index([eventId])
   @@map("Checkout")
 }
 
@@ -62,43 +90,50 @@ model Payment {
   id            String   @id @default(cuid())
   orderId       String   @unique
   order         Order    @relation(fields: [orderId], references: [id])
-  paymentMethod String   
+  paymentMethod String
   transactionId String?  @unique
   amount        Float
-  status        String   @default("PENDING") 
+  status        String   @default("PENDING")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
 }
 
 model Ticket {
-  id           String    @id @default(cuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id])
-  eventId      String
-  event        Event     @relation(fields: [eventId], references: [id])
-  orderId      String?
-  order        Order?    @relation(fields: [orderId], references: [id])
-  reference    String?   @unique
-  pricePaid    Float?
-  qrCodeData   String?   @unique
-  status       String    @default("VALID") // VALID, USED, CANCELLED
-  purchaseDate DateTime  @default(now())
-  scannedAt    DateTime?
-  scanLogs     ScanLog[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  eventId       String
+  event         Event     @relation(fields: [eventId], references: [id])
+  orderId       String?
+  order         Order?    @relation(fields: [orderId], references: [id])
+  reference     String?   @unique
+  pricePaid     Float?
+  qrCodeData    String?   @unique
+  type          String    @default("STANDARD") // STANDARD, VIP
+  status        String    @default("VALID") // VALID, USED, CANCELLED
+  purchaseDate  DateTime  @default(now())
+  scannedAt     DateTime?
+  downloadCount Int       @default(0)
+  scanLogs      ScanLog[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([userId])
   @@index([eventId])
 }
 
 model ScanLog {
-  id          String   @id @default(cuid())
-  ticketId    String
-  ticket      Ticket   @relation(fields: [ticketId], references: [id])
-  scannerId   String
-  scanner     User     @relation("ScannerLogs", fields: [scannerId], references: [id])
-  status      String   // SUCCESS, FAILED
-  message     String?  
-  scannedAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  scannerId String
+  scanner   User     @relation("ScannerLogs", fields: [scannerId], references: [id])
+  status    String // SUCCESS, FAILED
+  message   String?
+  scannedAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([scannerId])
 }

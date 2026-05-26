@@ -2,29 +2,44 @@ import { getCurrentUser, logoutAction } from '@/features/auth/server/auth.action
 import { redirect } from 'next/navigation';
 import { Button } from '@/shared/components/ui/Button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function ScannerLayout({ children }: { children: React.ReactNode }) {
     const user = await getCurrentUser();
 
-    if (!user || !['ADMIN', 'SCANNER'].includes(user.role)) {
-        redirect('/login');
+    if (!user) {
+        redirect('/auth/login');
+    }
+
+    if (!['ADMIN', 'SCANNER'].includes(user.role)) {
+        redirect('/auth/login?error=not_scanner');
     }
 
     return (
-        <div className="min-h-screen bg-neutral-950 flex flex-col">
-            <header className="bg-neutral-900 border-b border-white/10 p-4 shrink-0 flex justify-between items-center sticky top-0 z-10">
+        <div className="min-h-screen bg-neutral-50 flex flex-col">
+            <header className="bg-white border-b border-neutral-200 p-4 shrink-0 flex justify-between items-center sticky top-0 z-10">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-bold text-white hidden md:block">
-                        CongoTickets
+                    <Link href="/" className="hidden md:block">
+                        <div className="flex items-center group">
+                            <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-900/5 shadow-sm flex items-center justify-center shrink-0">
+                                <Image 
+                                    src="/logo.png" 
+                                    alt="NyotaPass Logo" 
+                                    fill 
+                                    className="object-contain p-1" 
+                                    priority
+                                />
+                            </div>
+                        </div>
                     </Link>
-                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 font-bold text-xs rounded-full uppercase tracking-widest">
+                    <span className="px-3 py-1 bg-primary-50 text-primary-700 font-bold text-xs rounded-full uppercase tracking-widest border border-primary-200">
                         Mode Scan
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-neutral-400 hidden sm:inline-block">Agent: {user.fullName}</span>
+                    <span className="text-sm font-medium text-neutral-600 hidden sm:inline-block">Agent: {user.fullName}</span>
                     <form action={logoutAction}>
-                        <Button variant="ghost" size="sm" type="submit">Déconnexion</Button>
+                        <Button variant="outline" size="sm" type="submit" className="border-neutral-200 text-neutral-700 hover:bg-neutral-50">Déconnexion</Button>
                     </form>
                 </div>
             </header>

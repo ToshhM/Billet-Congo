@@ -1,17 +1,58 @@
 import { Event } from '../types';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export const eventService = {
-    async getEvents(): Promise<Event[]> {
+    async getEvents(params?: { q?: string; sort?: string; vip?: string; available?: string; city?: string; category?: string; }): Promise<Event[]> {
         try {
+            const where: Prisma.EventWhereInput = { status: 'PUBLISHED' };
+
+            if (params?.q) {
+                const query = params.q;
+                where.OR = [
+                    { title: { contains: query, mode: 'insensitive' } },
+                    { location: { contains: query, mode: 'insensitive' } },
+                    { description: { contains: query, mode: 'insensitive' } },
+                ];
+            }
+
+            if (params?.available === '1') {
+                where.availableTickets = { gt: 0 };
+            }
+
+            if (params?.vip === '1') {
+                where.vipPrice = { not: null };
+                where.availableVipTickets = { gt: 0 };
+            }
+
+            if (params?.city) {
+                where.cityId = params.city;
+            }
+
+            if (params?.category) {
+                where.categoryId = params.category;
+            }
+
+            let orderBy: Prisma.EventOrderByWithRelationInput = { startDate: 'asc' }; // Défaut : date la plus proche
+            if (params?.sort) {
+                switch (params.sort) {
+                    case 'date-asc': orderBy = { startDate: 'asc' }; break;
+                    case 'date-desc': orderBy = { startDate: 'desc' }; break;
+                    case 'price-asc': orderBy = { price: 'asc' }; break;
+                    case 'price-desc': orderBy = { price: 'desc' }; break;
+                }
+            }
+
             const events = await prisma.event.findMany({
-                where: { status: 'PUBLISHED' },
-                orderBy: { startDate: 'asc' }
+                where,
+                orderBy,
+                include: { city: true, category: true }
             });
             
             return events.map(e => ({
                 ...e,
                 startDate: e.startDate.toISOString(),
+                endDate: e.endDate?.toISOString(),
                 createdAt: e.createdAt.toISOString(),
                 updatedAt: e.updatedAt.toISOString(),
             })) as unknown as Event[];
@@ -26,11 +67,13 @@ export const eventService = {
             const where = role === 'PROMOTER' ? { organizerId: userId } : {};
             const events = await prisma.event.findMany({
                 where,
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: 'desc' },
+                include: { city: true, category: true }
             });
             return events.map(e => ({
                 ...e,
                 startDate: e.startDate.toISOString(),
+                endDate: e.endDate?.toISOString(),
                 createdAt: e.createdAt.toISOString(),
                 updatedAt: e.updatedAt.toISOString(),
             })) as unknown as Event[];
@@ -72,13 +115,15 @@ export const eventService = {
     async getEventById(id: string): Promise<Event | null> {
         try {
             const event = await prisma.event.findUnique({
-                where: { id }
+                where: { id },
+                include: { city: true, category: true }
             });
             if (!event) return null;
 
             return {
                 ...event,
                 startDate: event.startDate.toISOString(),
+                endDate: event.endDate?.toISOString(),
                 createdAt: event.createdAt.toISOString(),
                 updatedAt: event.updatedAt.toISOString(),
             } as unknown as Event;
@@ -88,31 +133,43 @@ export const eventService = {
         }
     },
 
-    async createEvent(eventData: Omit<Event, 'id' | 'availableTickets'>): Promise<Event> {
+    async createEvent(eventData: Omit<Event, 'id' | 'availableTickets' | 'availableVipTickets'>): Promise<Event> {
         const event = await prisma.event.create({
             data: {
                 title: eventData.title,
                 description: eventData.description,
                 location: eventData.location,
+                city: eventData.cityId ? { connect: { id: eventData.cityId } } : undefined,
+                category: eventData.categoryId ? { connect: { id: eventData.categoryId } } : undefined,
                 startDate: eventData.startDate ? new Date(eventData.startDate) : new Date(),
+                endDate: eventData.endDate ? new Date(eventData.endDate) : undefined,
                 price: eventData.price,
+                vipPrice: eventData.vipPrice,
                 capacity: eventData.capacity,
                 availableTickets: eventData.capacity,
+                vipCapacity: eventData.vipCapacity,
+                availableVipTickets: eventData.vipCapacity,
                 status: eventData.status,
                 imageUrl: eventData.imageUrl,
                 organizer: {
-                    connect: { id: eventData.organizerId || 'usr-admin-1' } // Toujours le lier à un vrai utilisateur idéalement
+                    connect: { id: eventData.organizerId || 'usr-admin-1' }
                 }
-            } as any
+            }
         });
         return event as unknown as Event;
     },
 
     async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
-        const dataToUpdate: Record<string, unknown> = { ...eventData as any };
+        const dataToUpdate: Record<string, unknown> = { ...eventData } as Record<string, unknown>;
         if (dataToUpdate.id) delete dataToUpdate.id;
         if (dataToUpdate.organizerId) delete dataToUpdate.organizerId;
         if (dataToUpdate.startDate) dataToUpdate.startDate = new Date(dataToUpdate.startDate as string);
+        
+        if (dataToUpdate.endDate) {
+            dataToUpdate.endDate = new Date(dataToUpdate.endDate as string);
+        } else if (dataToUpdate.endDate === null) {
+            dataToUpdate.endDate = null;
+        }
 
         const event = await prisma.event.update({
             where: { id },
